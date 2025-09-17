@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=300,height=500">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="header">
+    <h1> Wingdings変換ツール</h1>
+    <div class="version">v1.0.0</div>
+  </div>
+
+  <div class="input-section">
+    <textarea 
+      id="inputText" 
+      placeholder="ここに変換したいテキストを入力してください（最大666文字）"
+      maxlength="666"
+    ></textarea>
+    <div class="char-counter">
+      <span id="charCount">0</span> / 666
+    </div>
+  </div>
+
+  <div class="buttons">
+    <button id="convertBtn" class="primary"> 変換</button>
+    <button id="mappingBtn" class="secondary"> 対応表</button>
+  </div>
+
+  <div class="result-section" id="resultSection" style="display: none;">
+    <label>変換結果:</label>
+    <div id="resultText" class="result-text"></div>
+    <button id="copyBtn" class="copy-btn"> コピー</button>
+  </div>
+
+  <div class="page-actions">
+    <hr>
+    <h3>ページ操作</h3>
+    <button id="convertPageBtn" class="page-btn"> ページ全体を変換</button>
+    <button id="revertPageBtn" class="page-btn">↩️ 元に戻す</button>
+  </div>
+
+  <div class="dictionary-section">
+    <hr>
+    <h3> 個人辞書</h3>
+    <div class="stats" id="dictStats">
+      読み込み中...
+    </div>
+    <button id="dictionaryBtn" class="secondary"> 辞書管理</button>
+  </div>
+
+  <div class="footer">
+    <div class="links">
+      <a href="#" id="helpLink">ヘルプ</a> | 
+      <a href="#" id="aboutLink">アバウト</a>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

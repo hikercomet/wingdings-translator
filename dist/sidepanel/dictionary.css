@@ -1,0 +1,180 @@
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-size: 14px;
+  background: #1e1e1e;
+  color: #ffffff;
+  margin: 0;
+  padding: 12px;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.header {
+  background: #2d2d30;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  border: 1px solid #444;
+}
+
+.header h1 {
+  font-size: 16px;
+  margin: 0 0 8px 0;
+  color: #8e24aa;
+}
+
+.stats {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.toolbar {
+  margin-bottom: 12px;
+}
+
+#searchInput {
+  width: 100%;
+  padding: 10px;
+  border: 2px solid #444;
+  border-radius: 8px;
+  background: #2d2d30;
+  color: #ffffff;
+  font-size: 14px;
+}
+
+#searchInput:focus {
+  outline: none;
+  border-color: #8e24aa;
+}
+
+.word-list {
+  flex-grow: 1;
+  overflow-y: auto;
+  background: #2d2d30;
+  border-radius: 8px;
+  padding: 8px;
+  border: 1px solid #444;
+}
+
+.word-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #444;
+}
+
+.word-item:last-child {
+  border-bottom: none;
+}
+
+.word-display {
+  display: flex;
+  flex-direction: column;
+}
+
+.word-kanji {
+  font-weight: bold;
+  font-size: 15px;
+}
+
+.word-reading {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.delete-btn {
+  background: #f44336;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.delete-btn:hover {
+  background: #d32f2f;
+}
+
+.add-word-form {
+  padding: 12px;
+  margin-top: 12px;
+  background: #2d2d30;
+  border-radius: 8px;
+  border: 1px solid #444;
+}
+
+.add-word-form h2 {
+  font-size: 15px;
+  margin: 0 0 10px 0;
+  color: #8e24aa;
+}
+
+.form-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.form-row input {
+  flex: 1;
+  padding: 10px;
+  border: 2px solid #444;
+  border-radius: 8px;
+  background: #1e1e1e;
+  color: #ffffff;
+  font-size: 14px;
+}
+
+#addWordBtn {
+  width: 100%;
+  background: linear-gradient(45deg, #8e24aa, #ab47bc);
+  border: none;
+  color: white;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+#addWordBtn:hover {
+  background: linear-gradient(45deg, #7b1fa2, #9c27b0);
+}
+
+.footer {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.footer .secondary {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.footer .secondary:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #2d2d30;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #666;
+  border-radius: 3px;
+}

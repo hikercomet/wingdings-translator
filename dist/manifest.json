@@ -1,0 +1,48 @@
+{
+  "manifest_version": 3,
+  "name": "Wingdings変換ツール",
+  "description": "日本語・英語をWingdingsフォントに変換。ガスターがChromeを使う体験を再現。",
+  "version": "1.0.0",
+  
+  "background": {
+    "service_worker": "background/service-worker.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": [
+        "content/content-script.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_title": "Wingdings変換ツール"
+  },
+  "side_panel": {
+    "default_path": "sidepanel/dictionary.html"
+  },
+  "permissions": [
+    "storage",
+    "contextMenus",
+    "tabs",
+    "sidePanel",
+    "downloads"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "data/*",
+        "assets/*"
+      ],
+      "matches": ["<all_urls>"]
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self';"
+  }
+}
