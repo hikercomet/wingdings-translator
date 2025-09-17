@@ -51,14 +51,26 @@ class WingdingsBackground {
 
   async handleMessage(message, sender, sendResponse) {
     try {
+      const tabId = message.tabId || sender.tab?.id;
+
+      if (!tabId) {
+        // In some cases, like the initial popup load, there's no target tab.
+        // We can ignore these messages or handle them gracefully.
+        if (message.type === 'GET_STATISTICS') {
+            const stats = this.dictionaryManager.getStatistics();
+            sendResponse({ success: true, statistics: stats });
+        }
+        return;
+      }
+
       switch (message.type) {
         case 'CONVERT_PAGE':
-          await this.convertPage(sender.tab.id);
+          await this.convertPage(tabId);
           sendResponse({ success: true });
           break;
 
         case 'REVERT_PAGE':
-          await this.revertPage(sender.tab.id);
+          await this.revertPage(tabId);
           sendResponse({ success: true });
           break;
 
@@ -77,6 +89,11 @@ class WingdingsBackground {
             message.limit || 50
           );
           sendResponse({ success: true, results: searchResults });
+          break;
+
+        case 'REMOVE_FROM_DICTIONARY':
+          const removeResult = await this.dictionaryManager.removeWord(message.kanji);
+          sendResponse({ success: removeResult });
           break;
 
         case 'GET_STATISTICS':

@@ -1,4 +1,5 @@
-const kanaMap = {
+function convertToRomaji(text) {
+  const kanaMap = {
       'キャ': 'KYA', 'キュ': 'KYU', 'キョ': 'KYO',
       'シャ': 'SHA', 'シュ': 'SHU', 'ショ': 'SHO',
       'チャ': 'CHA', 'チュ': 'CHU', 'チョ': 'CHO',
@@ -26,56 +27,38 @@ const kanaMap = {
       'ラ': 'RA', 'リ': 'RI', 'ル': 'RU', 'レ': 'RE', 'ロ': 'RO',
       'ワ': 'WA', 'ヰ': 'WI', 'ヱ': 'WE', 'ヲ': 'WO', 'ン': 'N',
       'ァ': 'A', 'ィ': 'I', 'ゥ': 'U', 'ェ': 'E', 'ォ': 'O',
-      'ッ': '', // 促音は後で処理
-      'ー': '-' // 長音はあとで母音に置換
+      'ッ': '', // Sokuon is handled later
+      'ー': '-'  // Chōonpu is handled later
   };
 
-  // 文字列をカタカナ→ローマ字に変換
-  function convertToRomaji(text) {
-      let result = '';
-      for (let i = 0; i < text.length; i++) {
-          let char = text[i];
-
-          // 促音の処理
-          if (char === 'ッ') {
-              let nextChar = text[i + 1];
-              if (nextChar) {
-                  let romaji = '';
-                  // 先読みして2文字拗音をチェック
-                  if (kanaMap[text.substring(i + 1, i + 3)]) {
-                      romaji = kanaMap[text.substring(i + 1, i + 3)];
-                      result += romaji[0]; // 子音だけ重ねる
-                      i++; // 拗音分をスキップ
-                      continue;
-                  } else if (kanaMap[nextChar]) {
-                      romaji = kanaMap[nextChar];
-                      result += romaji[0]; // 子音だけ重ねる
-                      continue;
-                  }
-              }
-              continue;
-          }
-
-          // 拗音や普通の文字を優先して変換
-          let twoChar = text.substring(i, i + 2);
-          if (kanaMap[twoChar]) {
-              result += kanaMap[twoChar];
-              i++; // 2文字分進める
-          } else if (kanaMap[char]) {
-              result += kanaMap[char];
-          } else {
-              result += char; // マッピングにない場合そのまま
-          }
-      }
-
-      // 長音「ー」を直前の母音で置換
-      result = result.replace(/-/g, function(_, offset) {
-          let prev = result[offset - 1] || '';
-          if ('AEIOU'.includes(prev.toUpperCase())) return prev.toLowerCase();
-          return '';
-      });
-
-      return result.toUpperCase();
+  function processSpecialSounds(romaji) {
+      // Process chōonpu (long vowels)
+      romaji = romaji.replace(/A-/g, 'AA').replace(/I-/g, 'II').replace(/U-/g, 'UU').replace(/E-/g, 'EE').replace(/O-/g, 'OO');
+      // Process sokuon (gemination)
+      romaji = romaji.replace(/っ(K|G|S|Z|T|D|H|F|B|P|M|Y|R|W)/g, '$1$1');
+      return romaji;
   }
+
+  let result = '';
+  for (let i = 0; i < text.length; i++) {
+      let twoChar = text.substring(i, i + 2);
+      if (kanaMap[twoChar]) {
+          result += kanaMap[twoChar];
+          i++;
+          continue;
+      }
+      let oneChar = text[i];
+      if (oneChar === 'ッ') {
+          let nextChar = text[i + 1];
+          if (nextChar && kanaMap[nextChar]) {
+              result += kanaMap[nextChar][0];
+          }
+          continue;
+      }
+      result += kanaMap[oneChar] || oneChar;
+  }
+
+  return processSpecialSounds(result).toUpperCase();
+}
 
 module.exports = { convertToRomaji };

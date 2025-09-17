@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>個人辞書管理</title>
+  <link rel="stylesheet" href="dictionary.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1>個人辞書</h1>
+      <div class="stats">
+        <span id="wordCount">0</span> / 5000 語
+      </div>
+    </header>
+
+    <div class="toolbar">
+      <input type="search" id="searchInput" placeholder="辞書を検索...">
+    </div>
+
+    <div id="wordList" class="word-list">
+      <!-- 単語はここに動的に追加されます -->
+    </div>
+
+    <div class="add-word-form">
+      <h2>新しい単語を追加</h2>
+      <div class="form-row">
+        <input type="text" id="newWordKanji" placeholder="単語 (例: 漢字)">
+        <input type="text" id="newWordReading" placeholder="よみ (例: かんじ)">
+      </div>
+      <button id="addWordBtn">追加</button>
+    </div>
+
+    <footer class="footer">
+        <button id="exportBtn" class="secondary">エクスポート</button>
+        <button id="importBtn" class="secondary">インポート</button>
+    </footer>
+
+  </div>
+  <script src="dictionary.js"></script>
+</body>
+</html>

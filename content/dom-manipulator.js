@@ -39,8 +39,12 @@ class DOMManipulator {
           
           // Create a new SPAN element to apply Wingdings font
           const newNode = document.createElement('span');
+          newNode.className = 'wingdings-converted'; // Add class for revert
           newNode.style.fontFamily = "Wingdings, 'Zapf Dingbats', monospace";
           newNode.textContent = convertedText;
+
+          // Use the new node as the key to store the original text
+          this.originalTexts.set(newNode, originalText);
           
           // Replace the old text node with the new span element
           node.parentNode.replaceChild(newNode, node);
