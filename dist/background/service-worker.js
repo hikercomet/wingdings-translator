@@ -305,12 +305,16 @@ class WingdingsBackground {
         contexts: ['page']
       });
 
-      chrome.contextMenus.create({
-        id: 'wingdings-revert-page', 
-        title: '↩️ 元に戻す',
-        contexts: ['page']
-      });
-
+        chrome.contextMenus.create({
+          id: 'REVERT_PAGE_REQUEST',
+          title: '↩️ 元に戻す',
+          contexts: ['page']
+        });
+        chrome.contextMenus.create({
+          id: 'CONVERT_SELECTION_FROM_WINGDINGS',
+          title: '選択範囲をテキストに変換',
+          contexts: ['selection']
+        });
       chrome.contextMenus.create({
         id: 'wingdings-add-word',
         title: '➕ 選択文字を辞書に登録 "%s"',

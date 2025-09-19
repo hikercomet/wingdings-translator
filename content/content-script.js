@@ -3,19 +3,16 @@ const { DOMManipulator } = require('./dom-manipulator.js');
 
 class MainContentScript {
   constructor() {
-    this.converter = new TextConverter();
-    this.domManipulator = new DOMManipulator(this.converter); // Pass converter instance
     this.init();
   }
 
   async init() {
-    console.log('Wingdings-Converter: Content script loaded.');
     try {
-      const dicPath = chrome.runtime.getURL('data/dict/');
-      const mapPath = chrome.runtime.getURL('data/wingdings-map.json');
-      await this.converter.init(dicPath, mapPath);
+      this.converter = new TextConverter();
+      this.domManipulator = new DOMManipulator();
+      await this.converter.init(chrome.runtime.getURL('data/dict/'));
       this.setupListeners();
-      console.log('Wingdings-Converter: Ready to convert.');
+      console.log('Wingdings-Converter: Content script is fully initialized.');
     } catch (e) {
       console.error('Wingdings-Converter: Initialization failed.', e);
     }
@@ -23,16 +20,26 @@ class MainContentScript {
 
   setupListeners() {
     chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-      if (message.type === 'CONVERT_PAGE_REQUEST') {
-        console.log('Wingdings-Converter: Received CONVERT_PAGE_REQUEST');
-        this.domManipulator.convertPage();
-        sendResponse({ success: true });
-      } else if (message.type === 'REVERT_PAGE_REQUEST') {
-        this.domManipulator.revertPage();
-        sendResponse({ success: true });
-      }
+      this.handleMessage(message, sender).then(sendResponse);
       return true;
     });
+  }
+
+  async handleMessage(message, sender) {
+    switch (message.type) {
+      case 'CONVERT_PAGE_REQUEST':
+        this.domManipulator.convertPage(this.converter);
+        return { success: true };
+      case 'REVERT_PAGE_REQUEST':
+        this.domManipulator.revertPage();
+        return { success: true };
+      case 'CONVERT_TEXT':
+        const convertedText = await this.converter.convert(message.text);
+        return { success: true, convertedText };
+      case 'CONVERT_FROM_WINGDINGS':
+        const originalText = this.converter.convertFromWingdings(message.text);
+        return { success: true, convertedText: originalText };
+    }
   }
 }
 

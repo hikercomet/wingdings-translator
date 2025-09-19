@@ -27,11 +27,23 @@
     <button id="mappingBtn" class="secondary"> 対応表</button>
   </div>
 
-  <div class="result-section" id="resultSection" style="display: none;">
-    <label>変換結果:</label>
-    <div id="resultText" class="result-text"></div>
-    <button id="copyBtn" class="copy-btn"> コピー</button>
-  </div>
+      <div id="resultSection" class="result-box" style="display:none;">
+        <h4>変換結果:</h4>
+        <p id="resultText" class="wingdings-font"></p>
+      </div>
+    </div>
+
+    <hr>
+
+    <div class="section">
+      <h3>Wingdings → テキスト</h3>
+      <textarea id="wingdingsInput" class="wingdings-font" placeholder="ここにWingdingsを貼り付け" rows="4"></textarea>
+      <button id="convertFromBtn" class="primary">逆変換</button>
+      <div id="reverseResultSection" class="result-box" style="display:none;">
+        <h4>逆変換結果:</h4>
+        <p id="reverseResultText"></p>
+      </div>
+    </div>
 
   <div class="page-actions">
     <hr>

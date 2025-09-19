@@ -12,19 +12,16 @@ const { DOMManipulator } = __webpack_require__(/*! ./dom-manipulator.js */ "./co
 
 class MainContentScript {
   constructor() {
-    this.converter = new TextConverter();
-    this.domManipulator = new DOMManipulator(this.converter); // Pass converter instance
     this.init();
   }
 
   async init() {
-    console.log('Wingdings-Converter: Content script loaded.');
     try {
-      const dicPath = chrome.runtime.getURL('data/dict/');
-      const mapPath = chrome.runtime.getURL('data/wingdings-map.json');
-      await this.converter.init(dicPath, mapPath);
+      this.converter = new TextConverter();
+      this.domManipulator = new DOMManipulator();
+      await this.converter.init(chrome.runtime.getURL('data/dict/'));
       this.setupListeners();
-      console.log('Wingdings-Converter: Ready to convert.');
+      console.log('Wingdings-Converter: Content script is fully initialized.');
     } catch (e) {
       console.error('Wingdings-Converter: Initialization failed.', e);
     }
@@ -32,21 +29,30 @@ class MainContentScript {
 
   setupListeners() {
     chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-      if (message.type === 'CONVERT_PAGE_REQUEST') {
-        console.log('Wingdings-Converter: Received CONVERT_PAGE_REQUEST');
-        this.domManipulator.convertPage();
-        sendResponse({ success: true });
-      } else if (message.type === 'REVERT_PAGE_REQUEST') {
-        this.domManipulator.revertPage();
-        sendResponse({ success: true });
-      }
+      this.handleMessage(message, sender).then(sendResponse);
       return true;
     });
+  }
+
+  async handleMessage(message, sender) {
+    switch (message.type) {
+      case 'CONVERT_PAGE_REQUEST':
+        this.domManipulator.convertPage(this.converter);
+        return { success: true };
+      case 'REVERT_PAGE_REQUEST':
+        this.domManipulator.revertPage();
+        return { success: true };
+      case 'CONVERT_TEXT':
+        const convertedText = await this.converter.convert(message.text);
+        return { success: true, convertedText };
+      case 'CONVERT_FROM_WINGDINGS':
+        const originalText = this.converter.convertFromWingdings(message.text);
+        return { success: true, convertedText: originalText };
+    }
   }
 }
 
 new MainContentScript();
-
 
 /***/ }),
 
@@ -57,90 +63,106 @@ new MainContentScript();
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 const kuromoji = __webpack_require__(/*! kuromoji */ "./node_modules/kuromoji/src/kuromoji.js");
-const { convertToRomaji } = __webpack_require__(/*! ../shared/romaji-converter.js */ "./shared/romaji-converter.js");
+const wingdingsMapData = __webpack_require__(/*! ../data/wingdings-map.json */ "./data/wingdings-map.json");
 
 class TextConverter {
   constructor() {
     this.kuromoji = null;
-    this.initPromise = null;
-    this.wingdingsMap = {};
-    this.emojiMap = {};
+    this.wingdingsMap = wingdingsMapData.ascii_to_wingdings;
+    this.reverseWingdingsMap = Object.fromEntries(Object.entries(this.wingdingsMap).map(([k, v]) => [v, k]));
   }
 
-  async init(dicPath, mapPath) {
-    this.initPromise = Promise.all([
-      this.loadKuromoji(dicPath),
-      this.loadWingdingsMap(mapPath)
-    ]).catch(error => {
-      console.error("Initialization failed, converter may not work correctly.", error);
-    });
-    return this.initPromise;
-  }
-
-  async loadKuromoji(dicPath) {
+  async init(dicPath) {
     return new Promise((resolve, reject) => {
       kuromoji.builder({ dicPath }).build((err, tokenizer) => {
-        if (err) {
-          reject(err);
-        } else {
-          this.kuromoji = tokenizer;
-          console.log('Kuromoji loaded successfully.');
-          resolve();
-        }
+        if (err) reject(err);
+        else { this.kuromoji = tokenizer; resolve(); }
       });
     });
   }
 
-  async loadWingdingsMap(mapPath) {
-    try {
-      const response = await fetch(mapPath);
-      const data = await response.json();
-      this.wingdingsMap = data.ascii_to_wingdings;
-      this.emojiMap = data.emoji_fallback;
-      console.log('Wingdings map loaded:', this.wingdingsMap);
-    } catch (error) {
-      console.error('Failed to load Wingdings map:', error);
-    }
-  }
-
   async convert(text) {
-    await this.initPromise;
-    
-    // Simple check if text contains any Japanese characters
-    if (this.kuromoji && /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/.test(text)) {
-        const tokens = this.kuromoji.tokenize(text);
-        const romaji = tokens.map(token => {
-            const reading = token.reading || token.surface_form;
-            // If the token is not Japanese, it doesn't need romaji conversion.
-            if (!/[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/.test(reading)) {
-                return reading;
-            }
-            return convertToRomaji(reading);
-        }).join('');
-        return this.convertTextToWingdings(romaji);
-    } else {
-        // If no Japanese or kuromoji is not loaded, treat the whole text as English/other
-        return this.convertTextToWingdings(text);
-    }
+    if (!this.kuromoji) return text;
+    const tokens = this.kuromoji.tokenize(text);
+    const romaji = tokens.map(token => {
+        const reading = token.reading || token.surface_form;
+        if (!/[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/.test(reading)) {
+            return reading;
+        }
+        return this.convertToRomaji(reading);
+    }).join('');
+    return this.convertTextToWingdings(romaji);
   }
 
   convertTextToWingdings(text) {
     let result = '';
     for (const char of text.toUpperCase()) {
-      if (this.wingdingsMap[char]) {
-        result += this.wingdingsMap[char];
-      } else {
-        result += char; // Keep character if no mapping exists
-      }
+      result += this.wingdingsMap[char] || char;
     }
     return result;
   }
 
-  isJapanese(text) {
-    return /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/.test(text);
+  convertFromWingdings(text) {
+    let result = '';
+    for (const char of text) {
+      result += this.reverseWingdingsMap[char] || char;
+    }
+    return result;
   }
 
-  
+  convertToRomaji(text) {
+      const kanaMap = {
+          'キャ': 'KYA', 'キュ': 'KYU', 'キョ': 'KYO',
+          'シャ': 'SHA', 'シュ': 'SHU', 'ショ': 'SHO',
+          'チャ': 'CHA', 'チュ': 'CHU', 'チョ': 'CHO',
+          'ニャ': 'NYA', 'ニュ': 'NYU', 'ニョ': 'NYO',
+          'ヒャ': 'HYA', 'ヒュ': 'HYU', 'ヒョ': 'HYO',
+          'ミャ': 'MYA', 'ミュ': 'MYU', 'ミョ': 'MYO',
+          'リャ': 'RYA', 'リュ': 'RYU', 'リョ': 'RYO',
+          'ギャ': 'GYA', 'ギュ': 'GYU', 'ギョ': 'GYO',
+          'ジャ': 'JA',  'ジュ': 'JU',  'ジョ': 'JO',
+          'ビャ': 'BYA', 'ビュ': 'BYU', 'ビョ': 'BYO',
+          'ピャ': 'PYA', 'ピュ': 'PYU', 'ピョ': 'PYO',
+          'ア': 'A', 'イ': 'I', 'ウ': 'U', 'エ': 'E', 'オ': 'O',
+          'カ': 'KA', 'キ': 'KI', 'ク': 'KU', 'ケ': 'KE', 'コ': 'KO',
+          'ガ': 'GA', 'ギ': 'GI', 'グ': 'GU', 'ゲ': 'GE', 'ゴ': 'GO',
+          'サ': 'SA', 'シ': 'SHI', 'ス': 'SU', 'セ': 'SE', 'ソ': 'SO',
+          'ザ': 'ZA', 'ジ': 'JI', 'ズ': 'ZU', 'ゼ': 'ZE', 'ゾ': 'ZO',
+          'タ': 'TA', 'チ': 'CHI', 'ツ': 'TSU', 'テ': 'TE', 'ト': 'TO',
+          'ダ': 'DA', 'ヂ': 'DI', 'ヅ': 'DU', 'デ': 'DE', 'ド': 'DO',
+          'ナ': 'NA', 'ニ': 'NI', 'ヌ': 'NU', 'ネ': 'NE', 'ノ': 'NO',
+          'ハ': 'HA', 'ヒ': 'HI', 'フ': 'FU', 'ヘ': 'HE', 'ホ': 'HO',
+          'バ': 'BA', 'ビ': 'BI', 'ブ': 'BU', 'ベ': 'BE', 'ボ': 'BO',
+          'パ': 'PA', 'ピ': 'PI', 'プ': 'PU', 'ペ': 'PE', 'ポ': 'PO',
+          'マ': 'MA', 'ミ': 'MI', 'ム': 'MU', 'メ': 'ME', 'モ': 'MO',
+          'ヤ': 'YA', 'ユ': 'YU', 'ヨ': 'YO',
+          'ラ': 'RA', 'リ': 'RI', 'ル': 'RU', 'レ': 'RE', 'ロ': 'RO',
+          'ワ': 'WA', 'ヰ': 'WI', 'ヱ': 'WE', 'ヲ': 'WO', 'ン': 'N',
+          'ァ': 'A', 'ィ': 'I', 'ゥ': 'U', 'ェ': 'E', 'ォ': 'O',
+          'ッ': '',
+          'ー': '-'
+      };
+      let result = '';
+      for (let i = 0; i < text.length; i++) {
+          let twoChar = text.substring(i, i + 2);
+          if (kanaMap[twoChar]) {
+              result += kanaMap[twoChar];
+              i++;
+              continue;
+          }
+          let oneChar = text[i];
+          if (oneChar === 'ッ') {
+              let nextChar = text[i + 1];
+              if (nextChar && kanaMap[nextChar]) {
+                  result += kanaMap[nextChar][0];
+              }
+              continue;
+          }
+          result += kanaMap[oneChar] || oneChar;
+      }
+      result = result.replace(/([AEIOU])-/g, '$1$1');
+      return result.toUpperCase();
+  }
 }
 
 module.exports = { TextConverter };
@@ -157,8 +179,7 @@ module.exports = { TextConverter };
 class DOMManipulator {
   constructor(converter) {
     this.converter = converter;
-    this.originalTexts = new WeakMap();
-    this.processedElements = new WeakSet();
+    this.convertedNodes = new Map();
     this.observer = null;
     this.isConverted = false;
   }
@@ -168,7 +189,7 @@ class DOMManipulator {
     console.log('Processing new nodes:', nodes);
   }
 
-  async convertPage() {
+  async convertPage(converter) {
     console.log('DOMManipulator: convertPage called');
     if (this.isConverted) return;
     
@@ -177,35 +198,23 @@ class DOMManipulator {
     
     console.log(`Found ${textNodes.length} text nodes`);
     
-    // 大量のテキストノード処理は分割実行
     await this.batchProcess(textNodes, async (batch) => {
-      const fragment = document.createDocumentFragment();
-      
       for (const node of batch) {
-        if (this.processedElements.has(node)) continue;
-        
+        if (!node.parentNode) continue; // Node may have been removed by a previous operation
         const originalText = node.textContent;
         if (!this.shouldProcess(originalText)) continue;
         
         try {
-          const convertedText = await this.convertText(originalText);
+          const convertedText = await this.convertText(originalText, converter);
           
-          // 元のテキストを保存
-          this.originalTexts.set(node, originalText);
-          
-          // Create a new SPAN element to apply Wingdings font
           const newNode = document.createElement('span');
-          newNode.className = 'wingdings-converted'; // Add class for revert
+          newNode.className = 'wingdings-converted';
           newNode.style.fontFamily = "Wingdings, 'Zapf Dingbats', monospace";
           newNode.textContent = convertedText;
 
-          // Use the new node as the key to store the original text
-          this.originalTexts.set(newNode, originalText);
-          
-          // Replace the old text node with the new span element
           node.parentNode.replaceChild(newNode, node);
           
-          this.processedElements.add(newNode);
+          this.convertedNodes.set(newNode, node);
         } catch (error) {
           console.error('Conversion failed for node:', error);
           this.markAsUnknown(node);
@@ -230,7 +239,6 @@ class DOMManipulator {
         }, { timeout: 1000 });
       });
       
-      // プログレス通知
       if (i % 500 === 0) {
         this.showProgress(i, items.length);
       }
@@ -244,7 +252,6 @@ class DOMManipulator {
       NodeFilter.SHOW_TEXT,
       {
         acceptNode: (node) => {
-          // スキップするタグ
           const skipTags = ['SCRIPT', 'STYLE', 'NOSCRIPT', 'TEXTAREA', 'INPUT'];
           const parentTag = node.parentNode.tagName;
           
@@ -252,7 +259,6 @@ class DOMManipulator {
             return NodeFilter.FILTER_REJECT;
           }
           
-          // 空白・改行のみはスキップ
           if (!/\S/.test(node.textContent)) {
             return NodeFilter.FILTER_REJECT;
           }
@@ -271,27 +277,24 @@ class DOMManipulator {
   }
 
   shouldProcess(text) {
-    // 処理対象の判定
     const minLength = 1;
-    const maxLength = 10000; // 10KB制限
+    const maxLength = 10000;
     
     if (text.length < minLength || text.length > maxLength) {
       return false;
     }
     
-    // 日本語・英語が含まれているか
     const hasJapanese = /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/.test(text);
     const hasEnglish = /[A-Za-z]/.test(text);
     
     return hasJapanese || hasEnglish;
   }
 
-  async convertText(text) {
-    return await this.converter.convert(text);
+  async convertText(text, converter) {
+    return await converter.convert(text);
   }
 
   markAsUnknown(node) {
-    // 未知語マーキング
     const wrapper = document.createElement('span');
     wrapper.className = 'wingdings-unknown';
     wrapper.style.cssText = `
@@ -305,30 +308,26 @@ class DOMManipulator {
     wrapper.title = 'Unknown word - Right click to add to dictionary';
     
     node.parentNode.replaceChild(wrapper, node);
-    this.processedElements.add(wrapper);
+    this.convertedNodes.set(wrapper, node);
   }
 
   revertPage() {
     if (!this.isConverted) return;
     
     this.stopObserving();
-    
-    // 処理済み要素を復元
-    document.querySelectorAll('.wingdings-converted, .wingdings-unknown').forEach(element => {
-      const originalText = this.originalTexts.get(element);
-      if (originalText) {
-        const textNode = document.createTextNode(originalText);
-        element.parentNode.replaceChild(textNode, element);
+
+    for (const [newNode, originalNode] of this.convertedNodes.entries()) {
+      if (newNode.parentNode) {
+        newNode.parentNode.replaceChild(originalNode, newNode);
       }
-    });
-    
-    this.processedElements.clear();
-    this.originalTexts = new WeakMap();
+    }
+
+    this.convertedNodes.clear();
     this.isConverted = false;
+    console.log('Page reverted.');
   }
 
   startObserving() {
-    // 動的コンテンツの監視
     this.observer = new MutationObserver((mutations) => {
       const addedNodes = [];
       
@@ -341,7 +340,6 @@ class DOMManipulator {
       });
       
       if (addedNodes.length > 0) {
-        // デバウンス処理
         clearTimeout(this.observerTimeout);
         this.observerTimeout = setTimeout(() => {
           this.processNewNodes(addedNodes);
@@ -366,7 +364,6 @@ class DOMManipulator {
   showProgress(current, total) {
     const progress = Math.round((current / total) * 100);
     
-    // プログレスバー表示
     let progressBar = document.getElementById('wingdings-progress');
     if (!progressBar) {
       progressBar = document.createElement('div');
@@ -18884,77 +18881,14 @@ d=(g[h++]|g[h++]<<8|g[h++]<<16|g[h++]<<24)>>>0;(a.length&4294967295)!==d&&n(Erro
 
 /***/ }),
 
-/***/ "./shared/romaji-converter.js":
-/*!************************************!*\
-  !*** ./shared/romaji-converter.js ***!
-  \************************************/
+/***/ "./data/wingdings-map.json":
+/*!*********************************!*\
+  !*** ./data/wingdings-map.json ***!
+  \*********************************/
 /***/ ((module) => {
 
-function convertToRomaji(text) {
-  const kanaMap = {
-      'キャ': 'KYA', 'キュ': 'KYU', 'キョ': 'KYO',
-      'シャ': 'SHA', 'シュ': 'SHU', 'ショ': 'SHO',
-      'チャ': 'CHA', 'チュ': 'CHU', 'チョ': 'CHO',
-      'ニャ': 'NYA', 'ニュ': 'NYU', 'ニョ': 'NYO',
-      'ヒャ': 'HYA', 'ヒュ': 'HYU', 'ヒョ': 'HYO',
-      'ミャ': 'MYA', 'ミュ': 'MYU', 'ミョ': 'MYO',
-      'リャ': 'RYA', 'リュ': 'RYU', 'リョ': 'RYO',
-      'ギャ': 'GYA', 'ギュ': 'GYU', 'ギョ': 'GYO',
-      'ジャ': 'JA',  'ジュ': 'JU',  'ジョ': 'JO',
-      'ビャ': 'BYA', 'ビュ': 'BYU', 'ビョ': 'BYO',
-      'ピャ': 'PYA', 'ピュ': 'PYU', 'ピョ': 'PYO',
-      'ア': 'A', 'イ': 'I', 'ウ': 'U', 'エ': 'E', 'オ': 'O',
-      'カ': 'KA', 'キ': 'KI', 'ク': 'KU', 'ケ': 'KE', 'コ': 'KO',
-      'ガ': 'GA', 'ギ': 'GI', 'グ': 'GU', 'ゲ': 'GE', 'ゴ': 'GO',
-      'サ': 'SA', 'シ': 'SHI', 'ス': 'SU', 'セ': 'SE', 'ソ': 'SO',
-      'ザ': 'ZA', 'ジ': 'JI', 'ズ': 'ZU', 'ゼ': 'ZE', 'ゾ': 'ZO',
-      'タ': 'TA', 'チ': 'CHI', 'ツ': 'TSU', 'テ': 'TE', 'ト': 'TO',
-      'ダ': 'DA', 'ヂ': 'DI', 'ヅ': 'DU', 'デ': 'DE', 'ド': 'DO',
-      'ナ': 'NA', 'ニ': 'NI', 'ヌ': 'NU', 'ネ': 'NE', 'ノ': 'NO',
-      'ハ': 'HA', 'ヒ': 'HI', 'フ': 'FU', 'ヘ': 'HE', 'ホ': 'HO',
-      'バ': 'BA', 'ビ': 'BI', 'ブ': 'BU', 'ベ': 'BE', 'ボ': 'BO',
-      'パ': 'PA', 'ピ': 'PI', 'プ': 'PU', 'ペ': 'PE', 'ポ': 'PO',
-      'マ': 'MA', 'ミ': 'MI', 'ム': 'MU', 'メ': 'ME', 'モ': 'MO',
-      'ヤ': 'YA', 'ユ': 'YU', 'ヨ': 'YO',
-      'ラ': 'RA', 'リ': 'RI', 'ル': 'RU', 'レ': 'RE', 'ロ': 'RO',
-      'ワ': 'WA', 'ヰ': 'WI', 'ヱ': 'WE', 'ヲ': 'WO', 'ン': 'N',
-      'ァ': 'A', 'ィ': 'I', 'ゥ': 'U', 'ェ': 'E', 'ォ': 'O',
-      'ッ': '', // Sokuon is handled later
-      'ー': '-'  // Chōonpu is handled later
-  };
-
-  function processSpecialSounds(romaji) {
-      // Process chōonpu (long vowels)
-      romaji = romaji.replace(/A-/g, 'AA').replace(/I-/g, 'II').replace(/U-/g, 'UU').replace(/E-/g, 'EE').replace(/O-/g, 'OO');
-      // Process sokuon (gemination)
-      romaji = romaji.replace(/っ(K|G|S|Z|T|D|H|F|B|P|M|Y|R|W)/g, '$1$1');
-      return romaji;
-  }
-
-  let result = '';
-  for (let i = 0; i < text.length; i++) {
-      let twoChar = text.substring(i, i + 2);
-      if (kanaMap[twoChar]) {
-          result += kanaMap[twoChar];
-          i++;
-          continue;
-      }
-      let oneChar = text[i];
-      if (oneChar === 'ッ') {
-          let nextChar = text[i + 1];
-          if (nextChar && kanaMap[nextChar]) {
-              result += kanaMap[nextChar][0];
-          }
-          continue;
-      }
-      result += kanaMap[oneChar] || oneChar;
-  }
-
-  return processSpecialSounds(result).toUpperCase();
-}
-
-module.exports = { convertToRomaji };
-
+"use strict";
+module.exports = JSON.parse('{"ascii_to_wingdings":{"0":"","1":"","2":"","3":"","4":"","5":"","6":"","7":"","8":"","9":"","A":"","B":"","C":"","D":"","E":"","F":"","G":"","H":"","I":"","J":"","K":"","L":"","M":"","N":"","O":"","P":"","Q":"","R":"","S":"","T":"","U":"","V":"","W":"","X":"","Y":"","Z":""," ":" ","!":"","?":"",".":"",",":"",";":"",":":""},"emoji_fallback":{"0":"⓪","1":"①","2":"②","3":"③","4":"④","5":"⑤","6":"⑥","7":"⑦","8":"⑧","9":"⑨","A":"✌️","B":"","C":"","D":"☝️","E":"✋","F":"","G":"✊","H":"","I":"☝️","J":"","K":"","L":"☹️","M":"","N":"⚡","O":"❄️","P":"✡️","Q":"☪️","R":"☮️","S":"☯️","T":"☢️","U":"☣️","V":"✝️","W":"☦️","X":"✖️","Y":"✔️","Z":""}}');
 
 /***/ })
 
