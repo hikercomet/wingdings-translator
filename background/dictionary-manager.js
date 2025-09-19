@@ -38,9 +38,9 @@ class DictionaryManager {
       throw new Error(`Dictionary limit reached: ${this.MAX_ENTRIES} words`);
     }
 
-    // 自動ローマ字変換
     if (!romaji) {
-      romaji = convertToRomaji(reading);
+      // Romaji must be provided by the caller.
+      throw new Error('Romaji is required to add a word.');
     }
 
     const wordData = {

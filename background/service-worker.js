@@ -57,16 +57,6 @@ class WingdingsBackground {
     try {
       const tabId = message.tabId || sender.tab?.id;
 
-      if (!tabId) {
-        // In some cases, like the initial popup load, there's no target tab.
-        // We can ignore these messages or handle them gracefully.
-        if (message.type === 'GET_STATISTICS') {
-            const stats = this.dictionaryManager.getStatistics();
-            sendResponse({ success: true, statistics: stats });
-        }
-        return;
-      }
-
       switch (message.type) {
         case 'CONVERT_PAGE':
           await this.convertPage(tabId);
@@ -104,6 +94,8 @@ class WingdingsBackground {
           const stats = this.dictionaryManager.getStatistics();
           sendResponse({ success: true, statistics: stats });
           break;
+
+
 
         case 'EXPORT_DICTIONARY':
           const blob = await this.dictionaryManager.exportDictionary();

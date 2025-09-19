@@ -3,7 +3,7 @@ const wingdingsMapData = require('../data/wingdings-map.json');
 
 class TextConverter {
   constructor() {
-    this.kuromoji = null;
+    this.tokenizer = null; // Renamed from kuromoji for clarity
     this.wingdingsMap = wingdingsMapData.ascii_to_wingdings;
     this.reverseWingdingsMap = Object.fromEntries(Object.entries(this.wingdingsMap).map(([k, v]) => [v, k]));
   }
@@ -12,21 +12,24 @@ class TextConverter {
     return new Promise((resolve, reject) => {
       kuromoji.builder({ dicPath }).build((err, tokenizer) => {
         if (err) reject(err);
-        else { this.kuromoji = tokenizer; resolve(); }
+        else { this.tokenizer = tokenizer; resolve(); }
       });
     });
   }
 
   async convert(text) {
-    if (!this.kuromoji) return text;
-    const tokens = this.kuromoji.tokenize(text);
-    const romaji = tokens.map(token => {
+    if (!this.tokenizer) return text;
+    const tokens = this.tokenizer.tokenize(text);
+    
+    const romajiParts = tokens.map(token => {
         const reading = token.reading || token.surface_form;
         if (!/[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/.test(reading)) {
             return reading;
         }
         return this.convertToRomaji(reading);
-    }).join('');
+    });
+
+    const romaji = romajiParts.join('');
     return this.convertTextToWingdings(romaji);
   }
 
@@ -47,18 +50,26 @@ class TextConverter {
   }
 
   convertToRomaji(text) {
+      console.log('[Wingdings-Converter] convertToRomaji input:', text);
+      const katakanaText = text.replace(/[ぁ-ゔ]/g, s => String.fromCharCode(s.charCodeAt(0) + 0x60));
+
       const kanaMap = {
           'キャ': 'KYA', 'キュ': 'KYU', 'キョ': 'KYO',
-          'シャ': 'SHA', 'シュ': 'SHU', 'ショ': 'SHO',
-          'チャ': 'CHA', 'チュ': 'CHU', 'チョ': 'CHO',
+          'シャ': 'SHA', 'シュ': 'SHU', 'ショ': 'SHO', 'シェ': 'SHE',
+          'チャ': 'CHA', 'チュ': 'CHU', 'チョ': 'CHO', 'チェ': 'CHE',
           'ニャ': 'NYA', 'ニュ': 'NYU', 'ニョ': 'NYO',
           'ヒャ': 'HYA', 'ヒュ': 'HYU', 'ヒョ': 'HYO',
           'ミャ': 'MYA', 'ミュ': 'MYU', 'ミョ': 'MYO',
           'リャ': 'RYA', 'リュ': 'RYU', 'リョ': 'RYO',
           'ギャ': 'GYA', 'ギュ': 'GYU', 'ギョ': 'GYO',
-          'ジャ': 'JA',  'ジュ': 'JU',  'ジョ': 'JO',
+          'ジャ': 'JA', 'ジュ': 'JU', 'ジョ': 'JO', 'ジェ': 'JE',
           'ビャ': 'BYA', 'ビュ': 'BYU', 'ビョ': 'BYO',
           'ピャ': 'PYA', 'ピュ': 'PYU', 'ピョ': 'PYO',
+          'ティ': 'TI', 'トゥ': 'TU',
+          'ディ': 'DI', 'ドゥ': 'DU',
+          'ファ': 'FA', 'フィ': 'FI', 'フェ': 'FE', 'フォ': 'FO',
+          'ウィ': 'WI', 'ウェ': 'WE', 'ウォ': 'WO',
+          'ヴァ': 'VA', 'ヴィ': 'VI', 'ヴ': 'VU', 'ヴェ': 'VE', 'ヴォ': 'VO',
           'ア': 'A', 'イ': 'I', 'ウ': 'U', 'エ': 'E', 'オ': 'O',
           'カ': 'KA', 'キ': 'KI', 'ク': 'KU', 'ケ': 'KE', 'コ': 'KO',
           'ガ': 'GA', 'ギ': 'GI', 'グ': 'GU', 'ゲ': 'GE', 'ゴ': 'GO',
@@ -73,30 +84,36 @@ class TextConverter {
           'マ': 'MA', 'ミ': 'MI', 'ム': 'MU', 'メ': 'ME', 'モ': 'MO',
           'ヤ': 'YA', 'ユ': 'YU', 'ヨ': 'YO',
           'ラ': 'RA', 'リ': 'RI', 'ル': 'RU', 'レ': 'RE', 'ロ': 'RO',
-          'ワ': 'WA', 'ヰ': 'WI', 'ヱ': 'WE', 'ヲ': 'WO', 'ン': 'N',
+          'ワ': 'WA', 'ヰ': 'I', 'ヱ': 'E', 'ヲ': 'O', 'ン': 'N',
           'ァ': 'A', 'ィ': 'I', 'ゥ': 'U', 'ェ': 'E', 'ォ': 'O',
-          'ッ': '',
+          'ッ': '', // This will be handled separately
           'ー': '-'
       };
       let result = '';
-      for (let i = 0; i < text.length; i++) {
-          let twoChar = text.substring(i, i + 2);
+      let textToProcess = katakanaText;
+
+      for (let i = 0; i < textToProcess.length; i++) {
+          let twoChar = textToProcess.substring(i, i + 2);
           if (kanaMap[twoChar]) {
               result += kanaMap[twoChar];
               i++;
               continue;
           }
-          let oneChar = text[i];
+          let oneChar = textToProcess[i];
           if (oneChar === 'ッ') {
-              let nextChar = text[i + 1];
+              let nextChar = textToProcess[i + 1];
               if (nextChar && kanaMap[nextChar]) {
-                  result += kanaMap[nextChar][0];
+                  let firstRomajiChar = kanaMap[nextChar][0];
+                  if (firstRomajiChar !== 'N') {
+                    result += firstRomajiChar;
+                  }
               }
               continue;
           }
           result += kanaMap[oneChar] || oneChar;
       }
       result = result.replace(/([AEIOU])-/g, '$1$1');
+      console.log('[Wingdings-Converter] convertToRomaji output:', result);
       return result.toUpperCase();
   }
 }

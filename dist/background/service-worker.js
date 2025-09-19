@@ -47,9 +47,9 @@ class DictionaryManager {
       throw new Error(`Dictionary limit reached: ${this.MAX_ENTRIES} words`);
     }
 
-    // 自動ローマ字変換
     if (!romaji) {
-      romaji = convertToRomaji(reading);
+      // Romaji must be provided by the caller.
+      throw new Error('Romaji is required to add a word.');
     }
 
     const wordData = {
@@ -340,16 +340,6 @@ class WingdingsBackground {
     try {
       const tabId = message.tabId || sender.tab?.id;
 
-      if (!tabId) {
-        // In some cases, like the initial popup load, there's no target tab.
-        // We can ignore these messages or handle them gracefully.
-        if (message.type === 'GET_STATISTICS') {
-            const stats = this.dictionaryManager.getStatistics();
-            sendResponse({ success: true, statistics: stats });
-        }
-        return;
-      }
-
       switch (message.type) {
         case 'CONVERT_PAGE':
           await this.convertPage(tabId);
@@ -387,6 +377,8 @@ class WingdingsBackground {
           const stats = this.dictionaryManager.getStatistics();
           sendResponse({ success: true, statistics: stats });
           break;
+
+
 
         case 'EXPORT_DICTIONARY':
           const blob = await this.dictionaryManager.exportDictionary();
