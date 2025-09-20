@@ -1,0 +1,112 @@
+{
+  "extName": {
+    "message": "Wingdings Translator Tool",
+    "description": "The name of the extension."
+  },
+  "extDescription": {
+    "message": "Converts Japanese/English text to the Wingdings font, recreating the experience of Gaster using Chrome.",
+    "description": "The description of the extension."
+  },
+  "popupTitle": {
+    "message": "Wingdings Translator",
+    "description": "Title in the popup header."
+  },
+  "popupInputPlaceholder": {
+    "message": "Enter text to convert here (max 666 chars)",
+    "description": "Placeholder for the main input textarea."
+  },
+  "popupConvertButton": {
+    "message": "Convert",
+    "description": "Label for the convert button."
+  },
+  "popupMappingButton": {
+    "message": "Chart",
+    "description": "Label for the mapping table button."
+  },
+  "popupResultLabel": {
+    "message": "Result:",
+    "description": "Label for the conversion result area."
+  },
+  "popupReverseTitle": {
+    "message": "Wingdings → Text",
+    "description": "Title for the reverse conversion section."
+  },
+  "popupReversePlaceholder": {
+    "message": "Paste Wingdings here",
+    "description": "Placeholder for the reverse conversion textarea."
+  },
+  "popupReverseButton": {
+    "message": "Reverse Convert",
+    "description": "Label for the reverse convert button."
+  },
+  "popupReverseResultLabel": {
+    "message": "Reverse Result:",
+    "description": "Label for the reverse conversion result area."
+  },
+  "popupPageActionsTitle": {
+    "message": "Page Actions",
+    "description": "Title for the page actions section."
+  },
+  "popupConvertPageButton": {
+    "message": "Convert Entire Page",
+    "description": "Label for the convert page button."
+  },
+  "popupRevertPageButton": {
+    "message": "↩️ Revert",
+    "description": "Label for the revert page button."
+  },
+  "popupDictionaryTitle": {
+    "message": "Personal Dictionary",
+    "description": "Title for the personal dictionary section."
+  },
+  "popupDictionaryLoading": {
+    "message": "Loading...",
+    "description": "Loading text for dictionary stats."
+  },
+  "popupDictionaryManageButton": {
+    "message": "Manage Dictionary",
+    "description": "Label for the dictionary management button."
+  },
+  "popupHelpLink": {
+    "message": "Help",
+    "description": "Text for the help link."
+  },
+  "popupAboutLink": {
+    "message": "About",
+    "description": "Text for the about link."
+  },
+  "promptForReading": {
+    "message": "Please enter the reading (in Hiragana) for \"$kanji$\":",
+    "description": "Prompt message for user to enter the reading of a word.",
+    "placeholders": {
+      "kanji": {
+        "content": "$1",
+        "example": "Word"
+      }
+    }
+  },
+  "alertWordAdded": {
+    "message": "Added \"$kanji$\" to the dictionary.",
+    "description": "Alert message shown when a word is successfully added to the dictionary.",
+    "placeholders": {
+      "kanji": {
+        "content": "$1",
+        "example": "Word"
+      }
+    }
+  },
+  "alertAddWordFailed": {
+    "message": "Failed to add word to dictionary: $error$",
+    "description": "Alert message shown when adding a word to the dictionary fails.",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Error message"
+      }
+    }
+  },
+  "alertAddWordError": {
+    "message": "An error occurred while adding the word.",
+    "description": "Generic error message for when an exception occurs while adding a word."
+  }
+}

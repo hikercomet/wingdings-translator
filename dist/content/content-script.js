@@ -51,7 +51,7 @@ class MainContentScript {
       }
       case 'SHOW_WORD_REGISTRATION': {
         const kanji = message.selectedText;
-        const reading = prompt(`「${kanji}」の読み仮名（ひらがな）を入力してください：`);
+        const reading = prompt(`Please enter the reading (in Hiragana) for "${kanji}":`);
         
         if (reading) {
           try {
@@ -64,16 +64,15 @@ class MainContentScript {
               romaji
             });
             if (response.success) {
-              alert(`「${kanji}」を辞書に登録しました。`);
-              // Optionally, re-convert the page to see the change
+              alert(`Added "${kanji}" to the dictionary.`);
               this.domManipulator.revertPage();
               this.domManipulator.convertPage(this.converter);
             } else {
-              alert(`辞書登録に失敗しました： ${response.error}`);
+              alert(`Failed to add word to dictionary: ${response.error}`);
             }
           } catch (e) {
             console.error('Error adding word to dictionary:', e);
-            alert(`辞書登録中にエラーが発生しました。`);
+            alert('An error occurred while adding the word.');
           }
         }
         return { success: true }; // Acknowledge message was handled

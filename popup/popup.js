@@ -11,6 +11,8 @@ class WingdingsPopup {
     document.getElementById('revertPageBtn').addEventListener('click', () => this.sendMessageToContentScript({ type: 'REVERT_PAGE_REQUEST' }));
     document.getElementById('dictionaryBtn').addEventListener('click', () => this.openSidePanel());
     document.getElementById('mappingBtn').addEventListener('click', () => this.openMappingTable());
+    document.getElementById('helpLink').addEventListener('click', () => chrome.tabs.create({ url: chrome.runtime.getURL('assets/help.html') }));
+    document.getElementById('aboutLink').addEventListener('click', () => chrome.tabs.create({ url: chrome.runtime.getURL('assets/about.html') }));
 
     const inputText = document.getElementById('inputText');
     const charCount = document.getElementById('charCount');

@@ -1,3 +1,28 @@
+:root {
+  --primary-color: #9c27b0;
+  --primary-color-dark: #7b1fa2;
+  --primary-gradient: linear-gradient(45deg, var(--primary-color-dark), var(--primary-color));
+  
+  --accent-color: #4CAF50;
+  --accent-color-dark: #388E3C;
+
+  --background-color: #212121;
+  --surface-color: #303030;
+  --surface-color-hover: #424242;
+  --border-color: #444;
+
+  --text-color: #ffffff;
+  --text-color-secondary: #b0b0b0;
+  --text-on-primary: #ffffff;
+
+  --font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-family-wingdings: 'Wingdings', 'Zapf Dingbats', monospace;
+  
+  --border-radius: 8px;
+  --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  --transition-speed: 0.3s;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -7,82 +32,69 @@
 body {
   width: 320px;
   min-height: 500px;
-  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-family: var(--font-family);
   font-size: 14px;
-  background: linear-gradient(135deg, #1e1e1e 0%, #2d2d30 100%);
-  color: #ffffff;
+  background: var(--background-color);
+  color: var(--text-color);
   overflow-x: hidden;
 }
 
 .header {
-  background: linear-gradient(45deg, #6a1b9a, #8e24aa);
+  background: var(--primary-gradient);
   padding: 15px;
   text-align: center;
   position: relative;
+  border-bottom: 1px solid rgba(0,0,0,0.2);
 }
 
 .header h1 {
   font-size: 16px;
   font-weight: 600;
   margin-bottom: 5px;
+  color: var(--text-on-primary);
 }
 
 .version {
   font-size: 11px;
   opacity: 0.8;
+  color: var(--text-on-primary);
 }
 
-.input-section {
+.input-section, .section, .page-actions, .dictionary-section, .footer {
   padding: 15px;
-  position: relative;
 }
 
-#inputText {
+textarea {
   width: 100%;
-  height: 80px;
   padding: 10px;
-  border: 2px solid #444;
-  border-radius: 8px;
-  background: #2d2d30;
-  color: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  background: var(--surface-color);
+  color: var(--text-color);
   font-family: inherit;
   font-size: 14px;
   resize: none;
-  transition: all 0.3s ease;
+  transition: all var(--transition-speed) ease;
 }
 
-#inputText:focus {
+textarea:focus {
   outline: none;
-  border-color: #8e24aa;
-  box-shadow: 0 0 0 3px rgba(142, 36, 170, 0.2);
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(156, 39, 176, 0.2);
 }
 
 #wingdingsInput {
-  width: 100%;
   height: 80px;
-  padding: 10px;
-  border: 2px solid #444;
-  border-radius: 8px;
-  background: #2d2d30;
-  color: #ffffff;
-  font-family: 'Wingdings', 'Zapf Dingbats', monospace;
+  font-family: var(--font-family-wingdings);
   font-size: 16px;
-  resize: none;
-  text-transform: uppercase; /* 常に大文字に変換 */
-  transition: all 0.3s ease;
-}
-
-#wingdingsInput:focus {
-  outline: none;
-  border-color: #8e24aa;
-  box-shadow: 0 0 0 3px rgba(142, 36, 170, 0.2);
+  text-transform: uppercase;
 }
 
 .char-counter {
   text-align: right;
   margin-top: 5px;
   font-size: 12px;
-  opacity: 0.7;
+  color: var(--text-color-secondary);
 }
 
 #charCount.warning {
@@ -96,77 +108,83 @@ body {
   padding: 0 15px 15px;
 }
 
-.primary {
-  flex: 2;
-  background: linear-gradient(45deg, #8e24aa, #ab47bc);
+.btn {
+  flex: 1;
   border: none;
-  color: white;
+  color: var(--text-on-primary);
   padding: 12px;
-  border-radius: 8px;
+  border-radius: var(--border-radius);
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all var(--transition-speed) ease;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
 }
 
-.primary:hover:not(:disabled) {
-  background: linear-gradient(45deg, #7b1fa2, #9c27b0);
+.btn:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(142, 36, 170, 0.4);
+  box-shadow: var(--box-shadow);
 }
 
-.primary:disabled {
+.btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none;
 }
 
-.secondary {
-  flex: 1;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: white;
-  padding: 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
+.btn.primary {
+  flex: 2;
+  background: var(--primary-gradient);
 }
 
-.secondary:hover {
-  background: rgba(255, 255, 255, 0.2);
-  transform: translateY(-1px);
+.btn.primary:hover:not(:disabled) {
+  background: linear-gradient(45deg, var(--primary-color), #ad52c7);
 }
 
-.result-section {
-  padding: 15px;
-  border-top: 1px solid #444;
+.btn.secondary {
+  background: var(--surface-color-hover);
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
 }
 
-.result-section label {
+.btn.secondary:hover {
+  background: var(--border-color);
+}
+
+.result-box {
+  margin-top: 15px;
+}
+
+.result-box h4 {
   display: block;
   margin-bottom: 8px;
   font-weight: 600;
-  color: #8e24aa;
+  color: var(--primary-color);
 }
 
-#resultText {
-  background: #1a1a1a;
-  border: 1px solid #444;
-  border-radius: 8px;
+#resultText, #reverseResultText {
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
   padding: 12px;
   min-height: 60px;
   max-height: 120px;
   overflow-y: auto;
-  font-family: 'Wingdings', 'Zapf Dingbats', monospace;
   font-size: 16px;
   line-height: 1.4;
   word-break: break-all;
   white-space: pre-wrap;
 }
 
+#resultText {
+    font-family: var(--font-family-wingdings);
+}
+
 .copy-btn {
   width: 100%;
   margin-top: 10px;
-  background: rgba(76, 175, 80, 0.8);
+  background: var(--accent-color);
   border: none;
   color: white;
   padding: 10px;
@@ -176,17 +194,15 @@ body {
 }
 
 .copy-btn:hover {
-  background: rgba(76, 175, 80, 1);
+  background: var(--accent-color-dark);
 }
 
-.page-actions, .dictionary-section {
-  padding: 15px;
-}
-
-.page-actions h3, .dictionary-section h3 {
+.section h3, .page-actions h3, .dictionary-section h3 {
   margin-bottom: 12px;
   font-size: 14px;
-  color: #8e24aa;
+  color: var(--primary-color);
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 8px;
 }
 
 .page-btn {
@@ -195,7 +211,7 @@ body {
   border: none;
   color: white;
   padding: 12px;
-  border-radius: 8px;
+  border-radius: var(--border-radius);
   margin-bottom: 8px;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -207,8 +223,8 @@ body {
 }
 
 .stats {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
+  background: var(--surface-color);
+  border-radius: var(--border-radius);
   padding: 12px;
   margin-bottom: 12px;
   font-size: 13px;
@@ -225,7 +241,7 @@ body {
 }
 
 .stat-label {
-  opacity: 0.8;
+  color: var(--text-color-secondary);
 }
 
 .stat-value {
@@ -238,12 +254,12 @@ body {
 
 .footer {
   padding: 15px;
-  border-top: 1px solid #444;
+  border-top: 1px solid var(--border-color);
   text-align: center;
 }
 
 .links a {
-  color: #8e24aa;
+  color: var(--primary-color);
   text-decoration: none;
   font-size: 12px;
   transition: color 0.3s ease;
@@ -256,69 +272,46 @@ body {
 hr {
   border: none;
   height: 1px;
-  background: #444;
+  background: var(--border-color);
   margin: 20px 0 15px;
 }
 
-/* 通知スタイル */
+/* Notification Style */
 .notification {
   position: fixed;
   top: 10px;
   right: 10px;
   left: 10px;
   padding: 12px;
-  border-radius: 8px;
+  border-radius: var(--border-radius);
   font-size: 13px;
   font-weight: 600;
   z-index: 1000;
   animation: slideIn 0.3s ease;
-}
-
-.notification.success {
-  background: rgba(76, 175, 80, 0.9);
   color: white;
 }
 
-.notification.warning {
-  background: rgba(255, 152, 0, 0.9);
-  color: white;
-}
-
-.notification.error {
-  background: rgba(244, 67, 54, 0.9);
-  color: white;
-}
-
-.notification.info {
-  background: rgba(33, 150, 243, 0.9);
-  color: white;
-}
+.notification.success { background: var(--accent-color); }
+.notification.warning { background: #ff9800; }
+.notification.error { background: #f44336; }
+.notification.info { background: #2196F3; }
 
  @keyframes slideIn {
-  from {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
+  from { transform: translateY(-200%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 
-/* スクロールバー */
+/* Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
 }
-
 ::-webkit-scrollbar-track {
-  background: #2d2d30;
+  background: var(--surface-color);
 }
-
 ::-webkit-scrollbar-thumb {
   background: #666;
   border-radius: 3px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
   background: #888;
 }

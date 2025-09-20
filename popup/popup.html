@@ -7,14 +7,14 @@
 </head>
 <body>
   <div class="header">
-    <h1> Wingdings変換ツール</h1>
+    <h1>Wingdings Translator</h1>
     <div class="version">v1.0.0</div>
   </div>
 
   <div class="input-section">
     <textarea 
       id="inputText" 
-      placeholder="ここに変換したいテキストを入力してください（最大666文字）"
+      placeholder="Enter text to convert here (max 666 chars)"
       maxlength="666"
     ></textarea>
     <div class="char-counter">
@@ -23,12 +23,12 @@
   </div>
 
   <div class="buttons">
-    <button id="convertBtn" class="primary"> 変換</button>
-    <button id="mappingBtn" class="secondary"> 対応表</button>
+    <button id="convertBtn" class="btn primary">Convert</button>
+    <button id="mappingBtn" class="btn secondary">Chart</button>
   </div>
 
       <div id="resultSection" class="result-box" style="display:none;">
-        <h4>変換結果:</h4>
+        <h4>Result:</h4>
         <p id="resultText"></p>
       </div>
     </div>
@@ -36,35 +36,35 @@
     <hr>
 
     <div class="section">
-      <h3>Wingdings → テキスト</h3>
-      <textarea id="wingdingsInput" placeholder="ここにWingdingsを貼り付け" rows="4"></textarea>
-      <button id="convertFromBtn" class="primary">逆変換</button>
+      <h3>Wingdings → Text</h3>
+      <textarea id="wingdingsInput" placeholder="Paste Wingdings here" rows="4"></textarea>
+      <button id="convertFromBtn" class="btn primary">Reverse Convert</button>
       <div id="reverseResultSection" class="result-box" style="display:none;">
-        <h4>逆変換結果:</h4>
+        <h4>Reverse Result:</h4>
         <p id="reverseResultText"></p>
       </div>
     </div>
 
   <div class="page-actions">
     <hr>
-    <h3>ページ操作</h3>
-    <button id="convertPageBtn" class="page-btn"> ページ全体を変換</button>
-    <button id="revertPageBtn" class="page-btn">↩️ 元に戻す</button>
+    <h3>Page Actions</h3>
+    <button id="convertPageBtn" class="page-btn">Convert Entire Page</button>
+    <button id="revertPageBtn" class="page-btn">↩️ Revert</button>
   </div>
 
   <div class="dictionary-section">
     <hr>
-    <h3> 個人辞書</h3>
+    <h3>Personal Dictionary</h3>
     <div class="stats" id="dictStats">
-      読み込み中...
+      Loading...
     </div>
-    <button id="dictionaryBtn" class="secondary"> 辞書管理</button>
+    <button id="dictionaryBtn" class="btn secondary">Manage Dictionary</button>
   </div>
 
   <div class="footer">
     <div class="links">
-      <a href="#" id="helpLink">ヘルプ</a> | 
-      <a href="#" id="aboutLink">アバウト</a>
+      <a href="#" id="helpLink">Help</a> | 
+      <a href="#" id="aboutLink">About</a>
     </div>
   </div>
 

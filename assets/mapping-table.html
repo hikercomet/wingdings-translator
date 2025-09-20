@@ -1,11 +1,24 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
-  <meta charset="utf-8">
-  <title>Wingdings Mapping</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wingdings 対応表</title>
+  <link rel="stylesheet" href="info-page.css">
 </head>
 <body>
-  <h1>Wingdings Mapping Table</h1>
-  <p>This is a placeholder. The real mapping table will be implemented here.</p>
+  <div class="container">
+    <header>
+      <h1>Wingdings 対応表</h1>
+    </header>
+    <main>
+      <p>この拡張機能が使用する、ASCII文字からWingdings記号への変換対応表です。</p>
+      <div id="mapping-table-container"></div>
+    </main>
+    <footer>
+      <a href="#" onclick="window.close()">閉じる</a>
+    </footer>
+  </div>
+  <script src="mapping-table.js"></script>
 </body>
 </html>

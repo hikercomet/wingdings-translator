@@ -1,8 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "Wingdings変換ツール",
-  "description": "日本語・英語をWingdingsフォントに変換。ガスターがChromeを使う体験を再現。",
+  "name": "Wingdings Translator Tool",
+  "description": "Converts Japanese/English text to the Wingdings font, recreating the experience of Gaster using Chrome.",
   "version": "1.0.0",
+  "default_locale": "en",
   
   "background": {
     "service_worker": "background/service-worker.js"
@@ -18,7 +19,16 @@
   ],
   "action": {
     "default_popup": "popup/popup.html",
-    "default_title": "Wingdings変換ツール"
+    "default_title": "Wingdings変換ツール",
+    "default_icon": {
+      "16": "assets/icons/icon16.png",
+      "48": "assets/icons/icon48.png"
+    }
+  },
+  "icons": {
+    "16": "assets/icons/icon16.png",
+    "48": "assets/icons/icon48.png",
+    "128": "assets/icons/icon128.png"
   },
   "side_panel": {
     "default_path": "sidepanel/dictionary.html"

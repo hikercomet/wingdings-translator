@@ -1,0 +1,112 @@
+{
+  "extName": {
+    "message": "Wingdings変換ツール",
+    "description": "The name of the extension."
+  },
+  "extDescription": {
+    "message": "日本語・英語をWingdingsフォントに変換。ガスターがChromeを使う体験を再現。",
+    "description": "The description of the extension."
+  },
+  "popupTitle": {
+    "message": "Wingdings変換ツール",
+    "description": "Title in the popup header."
+  },
+  "popupInputPlaceholder": {
+    "message": "ここに変換したいテキストを入力してください（最大666文字）",
+    "description": "Placeholder for the main input textarea."
+  },
+  "popupConvertButton": {
+    "message": "変換",
+    "description": "Label for the convert button."
+  },
+  "popupMappingButton": {
+    "message": "対応表",
+    "description": "Label for the mapping table button."
+  },
+  "popupResultLabel": {
+    "message": "変換結果:",
+    "description": "Label for the conversion result area."
+  },
+  "popupReverseTitle": {
+    "message": "Wingdings → テキスト",
+    "description": "Title for the reverse conversion section."
+  },
+  "popupReversePlaceholder": {
+    "message": "ここにWingdingsを貼り付け",
+    "description": "Placeholder for the reverse conversion textarea."
+  },
+  "popupReverseButton": {
+    "message": "逆変換",
+    "description": "Label for the reverse convert button."
+  },
+  "popupReverseResultLabel": {
+    "message": "逆変換結果:",
+    "description": "Label for the reverse conversion result area."
+  },
+  "popupPageActionsTitle": {
+    "message": "ページ操作",
+    "description": "Title for the page actions section."
+  },
+  "popupConvertPageButton": {
+    "message": "ページ全体を変換",
+    "description": "Label for the convert page button."
+  },
+  "popupRevertPageButton": {
+    "message": "↩️ 元に戻す",
+    "description": "Label for the revert page button."
+  },
+  "popupDictionaryTitle": {
+    "message": "個人辞書",
+    "description": "Title for the personal dictionary section."
+  },
+  "popupDictionaryLoading": {
+    "message": "読み込み中...",
+    "description": "Loading text for dictionary stats."
+  },
+  "popupDictionaryManageButton": {
+    "message": "辞書管理",
+    "description": "Label for the dictionary management button."
+  },
+  "popupHelpLink": {
+    "message": "ヘルプ",
+    "description": "Text for the help link."
+  },
+  "popupAboutLink": {
+    "message": "アバウト",
+    "description": "Text for the about link."
+  },
+  "promptForReading": {
+    "message": "「$kanji$」の読み仮名（ひらがな）を入力してください：",
+    "description": "Prompt message for user to enter the reading of a word.",
+    "placeholders": {
+      "kanji": {
+        "content": "$1",
+        "example": "単語"
+      }
+    }
+  },
+  "alertWordAdded": {
+    "message": "「$kanji$」を辞書に登録しました。",
+    "description": "Alert message shown when a word is successfully added to the dictionary.",
+    "placeholders": {
+      "kanji": {
+        "content": "$1",
+        "example": "単語"
+      }
+    }
+  },
+  "alertAddWordFailed": {
+    "message": "辞書登録に失敗しました： $error$",
+    "description": "Alert message shown when adding a word to the dictionary fails.",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "エラーメッセージ"
+      }
+    }
+  },
+  "alertAddWordError": {
+    "message": "辞書登録中にエラーが発生しました。",
+    "description": "Generic error message for when an exception occurs while adding a word."
+  }
+}
