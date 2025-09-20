@@ -10,7 +10,7 @@
 
 ### Overview
 
-Converts Japanese, English, and Roman characters to Wingdings. A wonderful (?) Chrome extension!!
+Converts Japanese, English, and Roman characters to Wingdings. A fun and quirkyChrome extension!!
 
 This Chrome extension provides a unique and fun browsing experience by translating web page text into the iconic Wingdings font. It also includes a personal dictionary feature, allowing you to register custom words (such as proper nouns or technical terms) to improve conversion accuracy.
 
