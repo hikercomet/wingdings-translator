@@ -2,8 +2,7 @@ const path = require('path');
 const CopyPlugin = require('copy-webpack-plugin');
 
 module.exports = {
-  mode: 'development',
-  devtool: 'cheap-module-source-map',
+  mode: 'production',
   entry: {
     // Bundle all content scripts together
     'content/content-script': [

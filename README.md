@@ -10,9 +10,9 @@
 
 ### Overview
 
-This Chrome extension converts Japanese and English text on web pages into the famous "Wingdings" font, and vice-versa. It provides a unique browsing experience, recreating the aesthetic of a certain well-known character using a computer.
+Converts Japanese, English, and Roman characters to Wingdings. A wonderful (?) Chrome extension!!
 
-It also includes a personal dictionary feature, allowing you to register custom words (such as proper nouns or technical terms) to improve conversion accuracy.
+This Chrome extension provides a unique and fun browsing experience by translating web page text into the iconic Wingdings font. It also includes a personal dictionary feature, allowing you to register custom words (such as proper nouns or technical terms) to improve conversion accuracy.
 
 ### Features
 
@@ -86,15 +86,19 @@ When reporting a bug, please include the following details:
 
 Please follow the existing code style and conventions. This project uses ESLint to enforce a consistent code style. Before committing, please ensure your code does not produce any linting errors.
 
+### Credits
+
+This extension was created by hikercomet.
+
 ---
 
 ## <a name="日本語-japanese"></a>日本語 (Japanese)
 
 ### 概要
 
-このChrome拡張機能は、Webページ上の日本語や英語のテキストを、ミームとして有名な「Wingdings」フォントに変換したり、その逆を行ったりすることができます。特定のキャラクターがPCを使っているかのような、ユニークなブラウジング体験を提供します。
+日本語、英語、ローマ字をWingdingsに変換します。素晴らしい（？）Chrome拡張機能です！！
 
-個人辞書機能を搭載しており、固有名詞などを登録することで、変換精度を向上させることも可能です。
+このChrome拡張機能は、Webページ上の日本語や英語のテキストを、ミームとして有名な「Wingdings」フォントに変換したり、その逆を行ったりすることができます。特定のキャラクターがPCを使っているかのような、ユニークなブラウジング体験を提供します。個人辞書機能を搭載しており、固有名詞などを登録することで、変換精度を向上させることも可能です。
 
 ### 主な機能
 
@@ -166,3 +170,8 @@ Please follow the existing code style and conventions. This project uses ESLint 
 #### コードスタイル
 
 既存のコードスタイルと規約に従ってください。このプロジェクトはESLintを使用して、一貫したコードスタイルを強制しています。コミットする前に、あなたのコードがリンターのエラーを一切出さないことを確認してください。
+
+### クレジット
+
+この拡張機能は hikercomet によって作成されました。
+�リンターのエラーを一切出さないことを確認してください。
