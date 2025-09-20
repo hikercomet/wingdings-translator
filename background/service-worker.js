@@ -109,7 +109,7 @@ class WingdingsBackground {
           break;
 
         case 'PLAY_SOUND':
-          this.playGasterSound(message.soundId);
+          this.playSound(message.soundId);
           sendResponse({ success: true });
           break;
 
@@ -172,7 +172,7 @@ class WingdingsBackground {
     });
   }
 
-  playGasterSound(soundId = 'gaster1') {
+  playSound(soundId = '1') {
     // 効果音再生（Audio APIを使用）
     const audio = new Audio(chrome.runtime.getURL(`assets/sounds/${soundId}.mp3`));
     audio.volume = 0.3;

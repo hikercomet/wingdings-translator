@@ -4,7 +4,7 @@
     "description": "The name of the extension."
   },
   "extDescription": {
-    "message": "Converts Japanese/English text to the Wingdings font, recreating the experience of Gaster using Chrome.",
+    "message": "Converts Japanese/English text to the Wingdings font.A wonderful (?) Chrome extension!!",
     "description": "The description of the extension."
   },
   "popupTitle": {

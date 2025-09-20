@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Wingdings Translator Tool",
-  "description": "Converts Japanese/English text to the Wingdings font, recreating the experience of Gaster using Chrome.",
+  "description": "Converts Japanese/English text to the Wingdings font.A wonderful (?) Chrome extension!!",
   "version": "1.0.0",
   "default_locale": "en",
   

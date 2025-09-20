@@ -99,7 +99,7 @@ class WingdingsPopup {
       // ガスター効果音再生
       await chrome.runtime.sendMessage({
         type: 'PLAY_SOUND',
-        soundId: 'gaster_convert'
+        soundId: '_convert'
       });
 
     } catch (error) {
