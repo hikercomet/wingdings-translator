@@ -2,8 +2,7 @@
 
 ---
 
-[English](#english) | [日本語 (Japanese)](#日本語-japanese) | [Español (Spanish)](#español-spanish)
-
+[English](#english) | [日本語 (Japanese)](#日本語-japanese)
 ---
 
 ## <a name="english"></a>English
@@ -76,37 +75,3 @@ It also includes a personal dictionary feature, allowing you to register custom 
 *   **単語の追加**: 変換後に赤くハイライトされた単語を右クリックし、「Add to Dictionary」を選択、プロンプトにひらがなで読みを入力します。
 
 ---
-
-## <a name="español-spanish"></a>Español (Spanish)
-
-### Resumen
-
-Esta extensión de Chrome convierte texto en japonés e inglés en las páginas web a la famosa fuente "Wingdings" y viceversa. Proporciona una experiencia de navegación única, recreando la estética de cierto personaje conocido usando una computadora.
-
-También incluye una función de diccionario personal, que le permite registrar palabras personalizadas (como nombres propios o términos técnicos) para mejorar la precisión de la conversión.
-
-### Características
-
-*   **Traductor Emergente**: Convierta instantáneamente fragmentos de texto desde y hacia Wingdings directamente en la ventana emergente de la extensión.
-*   **Conversión de Página Completa**: Convierta todo el texto de la página web actual a Wingdings con un solo clic desde el menú contextual o la ventana emergente. Puede revertirlo con la misma facilidad.
-*   **Diccionario Personal**:
-    *   Las palabras no reconocidas se resaltan en rojo durante la conversión de la página.
-    *   Agregue fácilmente nuevas palabras haciendo clic derecho en el término resaltado y proporcionando su lectura.
-    *   Administre sus palabras registradas (buscar, editar, eliminar) a través del panel lateral.
-*   **Tabla de Caracteres**: Vea una tabla completa de caracteres ASCII y sus símbolos Wingdings correspondientes.
-*   **Interfaz en Inglés**: La interfaz de usuario se proporciona en inglés.
-
-### Instalación (para Desarrollo)
-
-1.  Clone este repositorio.
-2.  Ejecute `npm install` para instalar las dependencias necesarias.
-3.  Ejecute `npm run build` para crear la carpeta `dist`.
-4.  Abra Chrome y navegue a `chrome://extensions`.
-5.  Habilite el "Modo de desarrollador".
-6.  Haga clic en "Cargar descomprimida" y seleccione la carpeta `dist` de este proyecto.
-
-### Cómo Usar
-
-*   **Para conversiones rápidas:** Haga clic en el ícono de la extensión en la barra de herramientas para usar el traductor emergente.
-*   **Para convertir una página completa:** Haga clic derecho en la página y seleccione "Convert Entire Page to Wingdings", o use el botón en la ventana emergente.
-*   **Para agregar una palabra:** Cuando vea una palabra resaltada en rojo después de la conversión, haga clic derecho sobre ella, seleccione "Add to Dictionary" e ingrese su lectura (en Hiragana) cuando se le solicite.
