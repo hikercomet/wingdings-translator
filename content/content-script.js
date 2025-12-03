@@ -11,9 +11,14 @@ class MainContentScript {
       this.converter = new TextConverter();
       this.domManipulator = new DOMManipulator();
       this.setupListeners();
-      console.log('Wingdings-Converter: Content script is ready (lazy tokenizer init).');
+      // Auto-convert on page load
+      if (!this.converter.tokenizer) {
+        await this.converter.init(chrome.runtime.getURL('data/dict/'));
+      }
+      this.domManipulator.convertPage(this.converter);
+      console.log('Wingdings-Converter: Auto-converted page on load.');
     } catch (e) {
-      console.error('Wingdings-Converter: Initialization failed.', e);
+      console.error('Wingdings-Converter: Auto-conversion failed.', e);
     }
   }
 
