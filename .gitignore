@@ -21,3 +21,8 @@ node_modules
 *.njsproj
 *.sln
 *.sw?
+
+# Build outputs and artifacts
+dist/
+.claude/
+*.zip
