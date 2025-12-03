@@ -4,6 +4,7 @@ const wingdingsMapData = require('../data/wingdings-map.json');
 class TextConverter {
   constructor() {
     this.tokenizer = null; // Renamed from kuromoji for clarity
+    // wingdingsMap used only for reverse conversion
     this.wingdingsMap = wingdingsMapData.ascii_to_wingdings;
     this.reverseWingdingsMap = Object.fromEntries(Object.entries(this.wingdingsMap).map(([k, v]) => [v, k]));
   }
@@ -39,11 +40,7 @@ class TextConverter {
   }
 
   convertTextToWingdings(text) {
-    let result = '';
-    for (const char of text.toUpperCase()) {
-      result += this.wingdingsMap[char] || char;
-    }
-    return result;
+    return text.toUpperCase(); // Native Wingdings ASCII mapping for Windows compatibility
   }
 
   convertFromWingdings(text) {
