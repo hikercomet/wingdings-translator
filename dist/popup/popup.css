@@ -1,7 +1,7 @@
 :root {
   --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --font-mono: "SF Mono", Monaco, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
-  --font-wing: 'Wingdings 3', 'Wingdings', 'Zapf Dingbats', monospace;
+  --font-wing: Wingdings, "Wingdings 2", "Wingdings 3", Webdings, Symbola, "Segoe UI Symbol", monospace !important;
 
   --bg-primary: #000000;
   --bg-secondary: rgba(255,255,255,0.03);
@@ -109,9 +109,9 @@ textarea:focus {
 
 #wingdingsInput {
   min-height: 80px;
-  font-family: var(--font-wing);
-  font-size: 20px;
-  font-weight: 500;
+  font-family: "Wingdings", "Wingdings 2", "Wingdings 3", Webdings, Symbola, "Segoe UI Symbol", monospace !important;
+  font-size: 24px !important;
+  font-weight: normal;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -218,7 +218,8 @@ textarea:focus {
 }
 
 #resultText {
-  font-family: var(--font-wing);
+  font-family: var(--font-wing) !important;
+  font-size: 24px !important;
 }
 
 .copy-btn {

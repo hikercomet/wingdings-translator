@@ -65,7 +65,11 @@ class WingdingsPopup {
     if (!text) return;
     const response = await this.sendMessageToContentScript({ type: 'CONVERT_TEXT', text });
     if (response && response.success) {
-      document.getElementById('resultText').textContent = response.convertedText;
+      const resultText = document.getElementById('resultText');
+      resultText.textContent = response.convertedText;
+      resultText.style.fontFamily = "Wingdings, 'Wingdings 2', 'Wingdings 3', Webdings, Symbola, 'Segoe UI Symbol', 'Lucida Sans Unicode', monospace !important";
+      resultText.style.fontSize = '28px';
+      resultText.style.lineHeight = '1.2';
       document.getElementById('resultSection').style.display = 'block';
     }
   }
@@ -75,7 +79,8 @@ class WingdingsPopup {
     if (!text) return;
     const response = await this.sendMessageToContentScript({ type: 'CONVERT_FROM_WINGDINGS', text });
     if (response && response.success) {
-      document.getElementById('reverseResultText').textContent = response.convertedText;
+      const reverseResultText = document.getElementById('reverseResultText');
+      reverseResultText.textContent = response.convertedText;
       document.getElementById('reverseResultSection').style.display = 'block';
     }
   }
