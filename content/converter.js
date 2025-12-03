@@ -40,7 +40,11 @@ class TextConverter {
   }
 
   convertTextToWingdings(text) {
-    return text.toUpperCase(); // Native Wingdings ASCII mapping for Windows compatibility
+    let result = '';
+    for (const char of text.toUpperCase()) {
+      result += this.wingdingsMap[char] || char;
+    }
+    return result;
   }
 
   convertFromWingdings(text) {
