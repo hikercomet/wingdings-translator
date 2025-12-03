@@ -192,7 +192,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
       await wingdingsBackground.convertPage(tab.id);
       break;
 
-    case 'wingdings-revert-page':
+    case 'REVERT_PAGE_REQUEST':
       await wingdingsBackground.revertPage(tab.id);
       break;
 
