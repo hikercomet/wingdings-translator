@@ -31,7 +31,7 @@ class DOMManipulator {
           
           const newNode = document.createElement('span');
           newNode.className = 'wingdings-converted';
-          newNode.style.fontFamily = "'Wingdings 3', Wingdings, Webdings, 'Segoe UI Symbol', 'Lucida Sans Unicode', Zapf Dingbats, monospace";
+          newNode.style.fontFamily = "Wingdings, 'Wingdings 2', 'Wingdings 3', Webdings, Symbola, 'Segoe UI Symbol', monospace";
           newNode.textContent = convertedText;
 
           node.parentNode.replaceChild(newNode, node);
