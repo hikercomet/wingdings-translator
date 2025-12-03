@@ -37,7 +37,7 @@ module.exports = {
         { from: 'data', to: 'data' },
         { from: 'sidepanel', to: 'sidepanel' },
         // Copy kuromoji dictionary files
-        { from: 'node_modules/kuromoji/dict', to: 'data/dict' },
+        // { from: 'node_modules/kuromoji/dict', to: 'data/dict' },  // Disabled for lazy load
       ],
     }),
   ],

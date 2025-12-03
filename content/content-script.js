@@ -10,9 +10,8 @@ class MainContentScript {
     try {
       this.converter = new TextConverter();
       this.domManipulator = new DOMManipulator();
-      await this.converter.init(chrome.runtime.getURL('data/dict/'));
       this.setupListeners();
-      console.log('Wingdings-Converter: Content script is fully initialized.');
+      console.log('Wingdings-Converter: Content script is ready (lazy tokenizer init).');
     } catch (e) {
       console.error('Wingdings-Converter: Initialization failed.', e);
     }
@@ -28,12 +27,18 @@ class MainContentScript {
   async handleMessage(message, sender) {
     switch (message.type) {
       case 'CONVERT_PAGE_REQUEST':
+        if (!this.converter.tokenizer) {
+          await this.converter.init(chrome.runtime.getURL('data/dict/'));
+        }
         this.domManipulator.convertPage(this.converter);
         return { success: true };
       case 'REVERT_PAGE_REQUEST':
         this.domManipulator.revertPage();
         return { success: true };
       case 'CONVERT_TEXT':
+        if (!this.converter.tokenizer) {
+          await this.converter.init(chrome.runtime.getURL('data/dict/'));
+        }
         const convertedText = await this.converter.convert(message.text);
         return { success: true, convertedText };
       case 'CONVERT_FROM_WINGDINGS': {

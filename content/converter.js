@@ -17,6 +17,11 @@ class TextConverter {
     });
   }
 
+  async tokenizeAsync(text) {
+    if (!this.tokenizer) throw new Error('Tokenizer not initialized');
+    return this.tokenizer.tokenize(text);
+  }
+
   async convert(text) {
     if (!this.tokenizer) return text;
     const tokens = this.tokenizer.tokenize(text);
