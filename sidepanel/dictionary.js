@@ -29,14 +29,15 @@ class DictionaryPanel {
 
   async loadDictionary() {
     try {
-      const response = await chrome.runtime.sendMessage({ type: 'SEARCH_DICTIONARY', query: '', limit: 5000 });
-      if (response && response.success) {
-        this.words = response.results.sort((a, b) => a.kanji.localeCompare(b.kanji, 'ja'));
-        this.renderWordList();
-      } else {
-        console.error('Failed to load dictionary:', response?.error);
-        this.wordListEl.innerHTML = '<div class="word-item">辞書の読み込みに失敗しました。</div>';
-      }
+      const data = await chrome.storage.sync.get('wingdings_dictionary');
+      const dictionary = data.wingdings_dictionary || { words: {} };
+      this.words = Object.entries(dictionary.words).map(([kanji, data]) => ({
+        kanji,
+        reading: data.reading,
+        romaji: data.romaji
+      })).sort((a, b) => a.kanji.localeCompare(b.kanji, 'ja'));
+      this.renderWordList();
+      this.wordCountEl.textContent = this.words.length;
     } catch (e) {
       console.error('Error loading dictionary:', e);
       this.wordListEl.innerHTML = '<div class="word-item">辞書の読み込み中にエラーが発生しました。</div>';
