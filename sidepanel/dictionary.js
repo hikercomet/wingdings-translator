@@ -170,20 +170,22 @@ class DictionaryPanel {
     }
 
     try {
-        const response = await chrome.runtime.sendMessage({
-            type: 'REMOVE_FROM_DICTIONARY',
-            kanji: kanji
-        });
-
-        if (response && response.success) {
-            // Reload to reflect the change
+        const data = await chrome.storage.sync.get('wingdings_dictionary');
+        const dictionary = data.wingdings_dictionary || { words: {} };
+        if (dictionary.words && dictionary.words[kanji]) {
+            delete dictionary.words[kanji];
+            dictionary.metadata = dictionary.metadata || {};
+            dictionary.metadata.entryCount = Object.keys(dictionary.words).length;
+            dictionary.metadata.lastUpdate = Date.now();
+            await chrome.storage.sync.set({ 'wingdings_dictionary': dictionary });
             await this.loadDictionary();
+            alert('単語を削除しました。');
         } else {
-            alert('単語の削除に失敗しました: ' + response?.error);
+            alert('単語が見つかりませんでした。');
         }
     } catch (e) {
         console.error('Error deleting word:', e);
-        alert('単語の削除中にエラーが発生しました。');
+        alert('削除エラー: ' + e.message);
     }
   }
 }
