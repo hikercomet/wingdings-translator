@@ -1,6 +1,8 @@
 class WingdingsPopup {
   constructor() {
+    this.wingdingsMap = {}; // Initialize map
     this.bindEvents();
+    this.loadWingdingsMap(); // Load map asynchronously
     this.getDictionaryStats();
   }
 
@@ -21,6 +23,24 @@ class WingdingsPopup {
       charCount.textContent = count;
       charCount.classList.toggle('warning', count > 600);
     });
+  }
+
+  async loadWingdingsMap() {
+    try {
+      const response = await fetch(chrome.runtime.getURL('data/wingdings-map.json'));
+      const data = await response.json();
+      this.wingdingsMap = data.ascii_to_wingdings;
+    } catch (e) {
+      console.error('Error loading wingdings-map.json:', e);
+    }
+  }
+
+  asciiToWingdings(text) {
+    if (!this.wingdingsMap || Object.keys(this.wingdingsMap).length === 0) {
+      console.warn('Wingdings map not loaded yet.');
+      return text; // Return original text if map isn't ready
+    }
+    return text.split('').map(char => this.wingdingsMap[char.toUpperCase()] || char).join('');
   }
 
   async getDictionaryStats() {
@@ -63,15 +83,17 @@ class WingdingsPopup {
   async convertText() {
     const text = document.getElementById('inputText').value.trim();
     if (!text) return;
-    const response = await this.sendMessageToContentScript({ type: 'CONVERT_TEXT', text });
-    if (response && response.success) {
-      const resultText = document.getElementById('resultText');
-      resultText.textContent = response.convertedText;
-      resultText.style.fontFamily = "Wingdings, 'Wingdings 2', 'Wingdings 3', Webdings, Symbola, 'Segoe UI Symbol', 'Lucida Sans Unicode', monospace !important";
-      resultText.style.fontSize = '28px';
-      resultText.style.lineHeight = '1.2';
-      document.getElementById('resultSection').style.display = 'block';
-    }
+    // Content script will still return the original text, but we convert it to actual Wingdings chars here
+    // The content script's CONVERT_TEXT might be for on-page conversion, not for popup display.
+    // For popup display, we directly convert using the map.
+    const wingdingsChars = this.asciiToWingdings(text);
+
+    const resultText = document.getElementById('resultText');
+    resultText.textContent = wingdingsChars; // Set actual Wingdings characters
+    resultText.style.fontFamily = "Wingdings, 'Wingdings 2', 'Wingdings 3', Webdings, Symbola, 'Segoe UI Symbol', 'Lucida Sans Unicode', monospace !important"; // Keep font-family for visual consistency
+    resultText.style.fontSize = '28px';
+    resultText.style.lineHeight = '1.2';
+    document.getElementById('resultSection').style.display = 'block';
   }
 
   async convertFromWingdings() {

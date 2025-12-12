@@ -14,8 +14,9 @@ Converts Japanese, English, and Roman characters to Wingdings. A fun and quirkyC
 
 This Chrome extension provides a unique and fun browsing experience by translating web page text into the iconic Wingdings font. It also includes a personal dictionary feature, allowing you to register custom words (such as proper nouns or technical terms) to improve conversion accuracy.
 
-### Features
 
+### Features
+![alt text](image.png)
 *   **Popup Translator**: Instantly convert snippets of text to and from Wingdings directly in the extension's popup.
 *   **Full Page Conversion**: Convert all text on the current web page to Wingdings with a single click from the context menu or the popup. You can just as easily revert it back.
 *   **Personal Dictionary**:
@@ -101,7 +102,7 @@ This extension was created by hikercomet.
 このChrome拡張機能は、Webページ上の日本語や英語のテキストを、ミームとして有名な「Wingdings」フォントに変換したり、その逆を行ったりすることができます。特定のキャラクターがPCを使っているかのような、ユニークなブラウジング体験を提供します。個人辞書機能を搭載しており、固有名詞などを登録することで、変換精度を向上させることも可能です。
 
 ### 主な機能
-
+![alt text](image-1.png)
 *   **ポップアップによる変換**: ポップアップ上で、任意のテキストとWingdingsフォント間の相互変換が可能です。
 *   **ページ全体の変換**: 閲覧しているページ全体のテキストを一括でWingdingsに変換、または元に戻します。
 *   **個人辞書**:

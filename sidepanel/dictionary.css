@@ -8,10 +8,9 @@
   --bg-surface: rgba(255,255,255,0.06);
   --bg-hover: rgba(255,255,255,0.08);
 
-  --purple-500: #8b5cf6;
-  --purple-600: #7c3aed;
-  --purple-700: #6d28d9;
-  --purple-50: rgba(139, 92, 246, 0.1);
+  --accent-primary: #666666; /* Medium Gray */
+  --accent-secondary: #333333; /* Dark Gray */
+  --accent-focus-glow: rgba(102, 102, 102, 0.2); /* Gray glow for focus */
 
   --text-primary: rgba(255,255,255,0.95);
   --text-secondary: rgba(255,255,255,0.7);
@@ -57,7 +56,7 @@ body {
 }
 
 .header {
-  background: var(--gray-800);
+  background: var(--gray-800); /* Keep existing gray */
   padding: 20px;
   border-radius: var(--radius-lg);
   margin-bottom: 0;
@@ -96,8 +95,8 @@ body {
 
 #searchInput:focus {
   outline: none;
-  border-color: var(--purple-500);
-  box-shadow: 0 0 0 3px var(--purple-50);
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px var(--accent-focus-glow);
 }
 
 .word-list {
@@ -145,7 +144,7 @@ body {
 }
 
 .delete-btn {
-  background: linear-gradient(135deg, #ef4444, #dc2626);
+  background: var(--accent-secondary); /* Changed from red gradient */
   color: white;
   border: none;
   padding: 8px 12px;
@@ -158,7 +157,7 @@ body {
 }
 
 .delete-btn:hover {
-  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  background: var(--accent-primary); /* Darker gray on hover */
   transform: translateY(-1px);
   box-shadow: var(--shadow-md);
 }
@@ -199,13 +198,13 @@ body {
 
 .form-row input:focus {
   outline: none;
-  border-color: var(--purple-500);
-  box-shadow: 0 0 0 3px var(--purple-50);
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px var(--accent-focus-glow);
 }
 
 #addWordBtn {
   width: 100%;
-  background: linear-gradient(135deg, var(--purple-500), var(--purple-600));
+  background: var(--accent-primary); /* Changed from purple gradient */
   border: none;
   color: white;
   padding: 16px;
@@ -218,7 +217,7 @@ body {
 }
 
 #addWordBtn:hover {
-  background: linear-gradient(135deg, var(--purple-600), var(--purple-700));
+  background: var(--accent-secondary); /* Darker gray on hover */
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
 }
