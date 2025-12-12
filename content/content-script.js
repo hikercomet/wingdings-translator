@@ -3,6 +3,8 @@ const { DOMManipulator } = require('./dom-manipulator.js');
 
 class MainContentScript {
   constructor() {
+    this.converter = null;
+    this.domManipulator = null;
     this.init();
   }
 
@@ -11,14 +13,21 @@ class MainContentScript {
       this.converter = new TextConverter();
       this.domManipulator = new DOMManipulator();
       this.setupListeners();
-      // Auto-convert on page load
-      if (!this.converter.tokenizer) {
-        await this.converter.init(chrome.runtime.getURL('data/dict/'));
-      }
-      this.domManipulator.convertPage(this.converter);
-      console.log('Wingdings-Converter: Auto-converted page on load.');
+      // Initialize converter if needed for other messages, but don't auto-convert here
+      // The auto-conversion logic is now handled by the background script based on user settings.
+      // if (!this.converter.tokenizer) {
+      //   await this.converter.init(chrome.runtime.getURL('data/dict/'));
+      // }
+      // this.domManipulator.convertPage(this.converter); // Removed auto-conversion
+      console.log('Wingdings-Converter: Content script initialized. Awaiting commands.');
     } catch (e) {
-      console.error('Wingdings-Converter: Auto-conversion failed.', e);
+      console.error('Wingdings-Converter: Content script initialization failed.', e);
+    }
+  }
+
+  async ensureConverterInitialized() {
+    if (!this.converter.tokenizer) {
+      await this.converter.init(chrome.runtime.getURL('data/dict/'));
     }
   }
 
@@ -31,22 +40,20 @@ class MainContentScript {
 
   async handleMessage(message, sender) {
     switch (message.type) {
+      case 'PAGE_LOADED': // This message is now used for conditional auto-conversion
       case 'CONVERT_PAGE_REQUEST':
-        if (!this.converter.tokenizer) {
-          await this.converter.init(chrome.runtime.getURL('data/dict/'));
-        }
+        await this.ensureConverterInitialized();
         this.domManipulator.convertPage(this.converter);
         return { success: true };
       case 'REVERT_PAGE_REQUEST':
         this.domManipulator.revertPage();
         return { success: true };
       case 'CONVERT_TEXT':
-        if (!this.converter.tokenizer) {
-          await this.converter.init(chrome.runtime.getURL('data/dict/'));
-        }
+        await this.ensureConverterInitialized();
         const convertedText = await this.converter.convert(message.text);
         return { success: true, convertedText };
       case 'CONVERT_FROM_WINGDINGS': {
+        await this.ensureConverterInitialized();
         const originalText = this.converter.convertFromWingdings(message.text);
         return { success: true, convertedText: originalText };
       }
@@ -56,6 +63,7 @@ class MainContentScript {
         
         if (reading) {
           try {
+            await this.ensureConverterInitialized();
             const romaji = this.converter.convertToRomaji(reading);
             console.log('[Wingdings-Converter] Sending ADD_TO_DICTIONARY with:', { kanji, reading, romaji });
             const response = await chrome.runtime.sendMessage({

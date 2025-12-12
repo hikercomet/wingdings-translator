@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=300,height=500">
+  <meta name="viewport" content="width=300,height=550">
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
@@ -27,27 +27,32 @@
     <button id="mappingBtn" class="btn secondary">Chart</button>
   </div>
 
-      <div id="resultSection" class="result-box" style="display:none;">
-        <h4>Result:</h4>
-        <p id="resultText"></p>
-      </div>
-    </div>
+  <div id="resultSection" class="result-box" style="display:none;">
+    <h4>Result:</h4>
+    <p id="resultText"></p>
+  </div>
 
-    <hr>
+  <hr>
 
-    <div class="section">
-      <h3>Wingdings → Text</h3>
-      <textarea id="wingdingsInput" placeholder="Paste Wingdings here" rows="4"></textarea>
-      <button id="convertFromBtn" class="btn primary">Reverse Convert</button>
-      <div id="reverseResultSection" class="result-box" style="display:none;">
-        <h4>Reverse Result:</h4>
-        <p id="reverseResultText"></p>
-      </div>
+  <div class="section">
+    <h3>Wingdings → Text</h3>
+    <textarea id="wingdingsInput" placeholder="Paste Wingdings here" rows="4"></textarea>
+    <button id="convertFromBtn" class="btn primary">Reverse Convert</button>
+    <div id="reverseResultSection" class="result-box" style="display:none;">
+      <h4>Reverse Result:</h4>
+      <p id="reverseResultText"></p>
     </div>
+  </div>
 
   <div class="page-actions">
     <hr>
     <h3>Page Actions</h3>
+    <div class="setting-item">
+      <label for="autoConvertCheckbox">
+        <input type="checkbox" id="autoConvertCheckbox">
+        ページ読み込み時に自動変換
+      </label>
+    </div>
     <button id="convertPageBtn" class="page-btn">Convert Entire Page</button>
     <button id="revertPageBtn" class="page-btn">Revert</button>
   </div>

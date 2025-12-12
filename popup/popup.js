@@ -1,9 +1,11 @@
 class WingdingsPopup {
   constructor() {
     this.wingdingsMap = {}; // Initialize map
+    this.autoConvertCheckbox = document.getElementById('autoConvertCheckbox');
     this.bindEvents();
     this.loadWingdingsMap(); // Load map asynchronously
     this.getDictionaryStats();
+    this.loadSettings(); // Load user settings
   }
 
   bindEvents() {
@@ -23,6 +25,8 @@ class WingdingsPopup {
       charCount.textContent = count;
       charCount.classList.toggle('warning', count > 600);
     });
+
+    this.autoConvertCheckbox.addEventListener('change', () => this.saveSettings());
   }
 
   async loadWingdingsMap() {
@@ -65,6 +69,26 @@ class WingdingsPopup {
     } catch (error) {
       console.error('Error getting dictionary stats:', error);
       statsElement.textContent = 'エラーが発生しました。';
+    }
+  }
+
+  async loadSettings() {
+    try {
+      const settings = await chrome.storage.sync.get('wingdingsSettings');
+      this.autoConvertCheckbox.checked = settings.wingdingsSettings?.autoConvert ?? true; // Default to true
+    } catch (e) {
+      console.error('Error loading settings:', e);
+    }
+  }
+
+  async saveSettings() {
+    const autoConvert = this.autoConvertCheckbox.checked;
+    try {
+      await chrome.storage.sync.set({ wingdingsSettings: { autoConvert } });
+      // Notify background script about the change
+      await chrome.runtime.sendMessage({ type: 'UPDATE_SETTINGS', settings: { autoConvert } });
+    } catch (e) {
+      console.error('Error saving settings:', e);
     }
   }
 

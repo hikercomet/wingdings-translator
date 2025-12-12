@@ -4,14 +4,36 @@ const { DictionaryManager } = require('./dictionary-manager.js');
 class WingdingsBackground {
   constructor() {
     this.dictionaryManager = new DictionaryManager();
+    this.settings = {
+      autoConvert: true, // Default to true
+    };
     this.init();
   }
 
   async init() {
     await this.dictionaryManager.init();
+    await this.loadSettings(); // Load settings on init
     this.setupContextMenus();
     this.setupMessageHandlers();
     this.setupTabHandlers();
+  }
+
+  async loadSettings() {
+    try {
+      const storedSettings = await chrome.storage.sync.get('wingdingsSettings');
+      this.settings.autoConvert = storedSettings.wingdingsSettings?.autoConvert ?? true;
+    } catch (e) {
+      console.error('Error loading settings:', e);
+    }
+  }
+
+  async saveSettings(newSettings) {
+    this.settings = { ...this.settings, ...newSettings };
+    try {
+      await chrome.storage.sync.set({ wingdingsSettings: this.settings });
+    } catch (e) {
+      console.error('Error saving settings:', e);
+    }
   }
 
   setupContextMenus() {
@@ -95,17 +117,14 @@ class WingdingsBackground {
           sendResponse({ success: true, statistics: stats });
           break;
 
-
-
-        case 'EXPORT_DICTIONARY':
-          const blob = await this.dictionaryManager.exportDictionary();
-          const url = URL.createObjectURL(blob);
-          await chrome.downloads.download({
-            url: url,
-            filename: `wingdings-dictionary-${Date.now()}.json`,
-            saveAs: true
-          });
+        case 'UPDATE_SETTINGS': // New case for updating settings
+          await this.saveSettings(message.settings);
           sendResponse({ success: true });
+          break;
+
+        case 'EXPORT_DICTIONARY': // This case should have been removed by previous changes
+          console.warn('EXPORT_DICTIONARY message received but feature is removed.');
+          sendResponse({ success: false, error: 'Feature removed' });
           break;
 
         case 'PLAY_SOUND':
@@ -126,14 +145,17 @@ class WingdingsBackground {
     // タブ更新時の処理
     chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
       if (changeInfo.status === 'complete' && tab.url && !tab.url.startsWith('chrome://')) {
-        try {
-          await chrome.tabs.sendMessage(tabId, {
-            type: 'PAGE_LOADED',
-            url: tab.url
-          });
-        } catch (error) {
-          // Content script が読み込まれていない場合は無視
-          console.log('Content script not ready for tab:', tabId);
+        // Check autoConvert setting before sending PAGE_LOADED
+        if (this.settings.autoConvert) {
+          try {
+            await chrome.tabs.sendMessage(tabId, {
+              type: 'PAGE_LOADED',
+              url: tab.url
+            });
+          } catch (error) {
+            // Content script が読み込まれていない場合は無視
+            console.log('Content script not ready for tab:', tabId);
+          }
         }
       }
     });
