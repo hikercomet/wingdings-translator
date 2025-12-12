@@ -19,12 +19,26 @@ class DictionaryPanel {
   }
 
   bindEvents() {
+    let searchTimeout;
     this.searchInputEl.addEventListener('input', (e) => {
-      this.filter = e.target.value.toLowerCase();
+      this.filter = e.target.value.toLowerCase().trim();
       this.renderWordList();
+    });
+    this.searchInputEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        e.target.value = '';
+        this.filter = '';
+        this.renderWordList();
+        e.target.blur();
+      }
     });
 
     this.addWordBtnEl.addEventListener('click', () => this.addWord());
+    this.wordListEl.addEventListener('click', (e) => {
+      if (e.target.classList.contains('delete-btn')) {
+        setTimeout(() => this.loadDictionary(), 100);
+      }
+    });
   }
 
   async loadDictionary() {
@@ -46,35 +60,49 @@ class DictionaryPanel {
 
   renderWordList() {
     this.wordListEl.innerHTML = '';
-    
-    const filteredWords = this.words.filter(word => 
-        word.kanji.toLowerCase().includes(this.filter) || 
-        word.reading.toLowerCase().includes(this.filter) ||
-        word.romaji.toLowerCase().includes(this.filter)
-    );
+
+    const filteredWords = this.words.filter(word => {
+      const kanjiLower = word.kanji.toLowerCase();
+      const readingLower = word.reading.toLowerCase();
+      const romajiLower = (word.romaji || '').toLowerCase();
+      return kanjiLower.includes(this.filter) || readingLower.includes(this.filter) || romajiLower.includes(this.filter);
+    }).sort((a, b) => {
+      const aScore = this.getSearchScore(a);
+      const bScore = this.getSearchScore(b);
+      if (aScore !== bScore) return bScore - aScore;
+      return a.kanji.localeCompare(b.kanji, 'ja');
+    });
 
     if (filteredWords.length === 0) {
-        this.wordListEl.innerHTML = '<div class="word-item">該当する単語はありません。</div>';
+        this.wordListEl.innerHTML = '<div class="word-item empty-state">該当する単語はありません。<br><small>ヒント: 単語、よみ、ローマ字で検索できます</small></div>';
+    } else {
+        filteredWords.forEach(word => {
+            const itemEl = document.createElement('div');
+            itemEl.className = 'word-item';
+            itemEl.innerHTML = `
+                <div class="word-display">
+                    <span class="word-kanji">${word.kanji}</span>
+                    <span class="word-reading">${word.reading} (${word.romaji || ''})</span>
+                </div>
+                <button class="delete-btn" data-kanji="${word.kanji}">削除</button>
+            `;
+            this.wordListEl.appendChild(itemEl);
+        });
+        this.wordListEl.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => this.deleteWord(e.target.dataset.kanji));
+        });
     }
 
-    for (const word of filteredWords) {
-        const itemEl = document.createElement('div');
-        itemEl.className = 'word-item';
-        itemEl.innerHTML = `
-            <div class="word-display">
-                <span class="word-kanji">${word.kanji}</span>
-                <span class="word-reading">${word.reading} (${word.romaji})</span>
-            </div>
-            <button class="delete-btn" data-kanji="${word.kanji}">削除</button>
-        `;
-        this.wordListEl.appendChild(itemEl);
-    }
+    const count = filteredWords.length;
+    this.wordCountEl.textContent = `${count} / ${this.words.length} 語`;
+  }
 
-    this.wordCountEl.textContent = this.words.length;
-
-    this.wordListEl.querySelectorAll('.delete-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => this.deleteWord(e.target.dataset.kanji));
-    });
+  getSearchScore(word) {
+    const score = 0;
+    if (word.kanji.toLowerCase().includes(this.filter)) score += 3;
+    if (word.reading.toLowerCase().includes(this.filter)) score += 2;
+    if ((word.romaji || '').toLowerCase().includes(this.filter)) score += 1;
+    return score;
   }
 
   async addWord() {
@@ -170,6 +198,7 @@ class DictionaryPanel {
     }
 
     try {
+<<<<<<< HEAD
         const data = await chrome.storage.sync.get('wingdings_dictionary');
         const dictionary = data.wingdings_dictionary || { words: {} };
         if (dictionary.words && dictionary.words[kanji]) {
