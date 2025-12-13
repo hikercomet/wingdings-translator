@@ -19,20 +19,23 @@ class WingdingsBackground {
   }
 
   async loadSettings() {
+    console.log('Background: Loading settings...');
     try {
       const storedSettings = await chrome.storage.sync.get('wingdingsSettings');
       this.settings.autoConvert = storedSettings.wingdingsSettings?.autoConvert ?? true;
+      console.log('Background: Settings loaded. autoConvert:', this.settings.autoConvert);
     } catch (e) {
-      console.error('Error loading settings:', e);
+      console.error('Background: Error loading settings:', e);
     }
   }
 
   async saveSettings(newSettings) {
     this.settings = { ...this.settings, ...newSettings };
+    console.log('Background: Saving settings. autoConvert:', this.settings.autoConvert);
     try {
       await chrome.storage.sync.set({ wingdingsSettings: this.settings });
     } catch (e) {
-      console.error('Error saving settings:', e);
+      console.error('Background: Error saving settings:', e);
     }
   }
 
@@ -40,29 +43,29 @@ class WingdingsBackground {
     chrome.contextMenus.removeAll(() => {
       chrome.contextMenus.create({
         id: 'wingdings-convert-page',
-        title: ' ページ全体をWingdingsに変換',
+        title: 'ページゼンタイヲWINGDINGSニヘンカン',
         contexts: ['page']
       });
 
         chrome.contextMenus.create({
           id: 'REVERT_PAGE_REQUEST',
-          title: '↩️ 元に戻す',
+          title: 'モトニモドス',
           contexts: ['page']
         });
         chrome.contextMenus.create({
           id: 'CONVERT_SELECTION_FROM_WINGDINGS',
-          title: '選択範囲をテキストに変換',
+          title: 'センタクハンイヲテキストニヘンカン',
           contexts: ['selection']
         });
       chrome.contextMenus.create({
         id: 'wingdings-add-word',
-        title: '➕ 選択文字を辞書に登録 "%s"',
+        title: 'センタクモジヲジショニトウロク "%s"',
         contexts: ['selection']
       });
 
       chrome.contextMenus.create({
         id: 'wingdings-show-mapping',
-        title: ' Wingdings対応表を表示',
+        title: 'WINGDINGSタイオウヒョウヲヒョウジ',
         contexts: ['page']
       });
     });
@@ -100,10 +103,12 @@ class WingdingsBackground {
           break;
 
         case 'SEARCH_DICTIONARY':
+          console.log('Background: Received SEARCH_DICTIONARY message. Query:', message.query);
           const searchResults = await this.dictionaryManager.searchWords(
             message.query,
             message.limit || 50
           );
+          console.log('Background: Search results from DictionaryManager:', searchResults);
           sendResponse({ success: true, results: searchResults });
           break;
 
@@ -118,13 +123,9 @@ class WingdingsBackground {
           break;
 
         case 'UPDATE_SETTINGS': // New case for updating settings
+          console.log('Background: Received UPDATE_SETTINGS message. Settings:', message.settings);
           await this.saveSettings(message.settings);
           sendResponse({ success: true });
-          break;
-
-        case 'EXPORT_DICTIONARY': // This case should have been removed by previous changes
-          console.warn('EXPORT_DICTIONARY message received but feature is removed.');
-          sendResponse({ success: false, error: 'Feature removed' });
           break;
 
         case 'PLAY_SOUND':
@@ -145,6 +146,7 @@ class WingdingsBackground {
     // タブ更新時の処理
     chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
       if (changeInfo.status === 'complete' && tab.url && !tab.url.startsWith('chrome://')) {
+        console.log('Background: Tab updated. autoConvert setting:', this.settings.autoConvert);
         // Check autoConvert setting before sending PAGE_LOADED
         if (this.settings.autoConvert) {
           try {

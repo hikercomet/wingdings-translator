@@ -23,6 +23,7 @@ class DictionaryManager {
     };
     
     this.buildCache();
+    console.log('DictionaryManager: Initialized with', this.dictionary.metadata.entryCount, 'words.');
   }
 
   buildCache() {
@@ -30,6 +31,7 @@ class DictionaryManager {
     Object.entries(this.dictionary.words).forEach(([word, data]) => {
       this.cache.set(word, data);
     });
+    console.log('DictionaryManager: Cache built with', this.cache.size, 'words.');
   }
 
   async addWord(kanji, reading, romaji = null) {
@@ -63,6 +65,7 @@ class DictionaryManager {
     this.cache.set(kanji, wordData);
 
     await this.save();
+    console.log('DictionaryManager: Added/Updated word:', kanji);
     return wordData;
   }
 
@@ -91,7 +94,7 @@ class DictionaryManager {
       'サ': 'SA', 'シ': 'SHI', 'ス': 'SU', 'セ': 'SE', 'ソ': 'SO',
       'ザ': 'ZA', 'ジ': 'JI', 'ズ': 'ZU', 'ゼ': 'ZE', 'ゾ': 'ZO',
       'タ': 'TA', 'チ': 'CHI', 'ツ': 'TSU', 'テ': 'TE', 'ト': 'TO',
-      'ダ': 'DA', 'ヂ': 'DI', 'ヅ': 'DU', 'デ': 'DE', 'ド': 'DO',
+      'ダ': 'DA', 'デ': 'DE', 'ド': 'DO',
       'ナ': 'NA', 'ニ': 'NI', 'ヌ': 'NU', 'ネ': 'NE', 'ノ': 'NO',
       'ハ': 'HA', 'ヒ': 'HI', 'フ': 'FU', 'ヘ': 'HE', 'ホ': 'HO',
       'バ': 'BA', 'ビ': 'BI', 'ブ': 'BU', 'ベ': 'BE', 'ボ': 'BO',
@@ -136,8 +139,10 @@ class DictionaryManager {
       this.dictionary.metadata.entryCount--;
       this.dictionary.metadata.lastUpdate = Date.now();
       await this.save();
+      console.log('DictionaryManager: Removed word:', kanji);
       return true;
     }
+    console.log('DictionaryManager: Word not found for removal:', kanji);
     return false;
   }
 
@@ -146,6 +151,7 @@ class DictionaryManager {
   }
 
   async searchWords(query, limit = 50) {
+    console.log('DictionaryManager: Searching for query:', query);
     const results = [];
     const queryLower = query.toLowerCase();
 
@@ -165,6 +171,7 @@ class DictionaryManager {
 
     // 関連度でソート
     results.sort((a, b) => b.relevance - a.relevance);
+    console.log('DictionaryManager: Search results count:', results.length);
     return results;
   }
 
@@ -208,7 +215,7 @@ class DictionaryManager {
   }
 
   async cleanup() {
-    const words = Object.entries(this.dictionary.words);
+    const words = Object.values(this.dictionary.words);
     
     // スコア計算（頻度 + 最近使用）
     const scored = words.map(([kanji, data]) => ({
@@ -228,58 +235,6 @@ class DictionaryManager {
 
     this.dictionary.metadata.entryCount = Object.keys(this.dictionary.words).length;
     console.log(`Cleaned up ${toDelete.length} words from dictionary`);
-  }
-
-  async exportDictionary() {
-    const exportData = {
-      ...this.dictionary,
-      exportDate: Date.now(),
-      version: chrome.runtime.getManifest().version
-    };
-
-    const blob = new Blob([JSON.stringify(exportData, null, 2)], {
-      type: 'application/json'
-    });
-
-    return blob;
-  }
-
-  async importDictionary(jsonData) {
-    try {
-      const importedData = JSON.parse(jsonData);
-      
-      // バリデーション
-      if (!importedData.words || typeof importedData.words !== 'object') {
-        throw new Error('Invalid dictionary format');
-      }
-
-      // マージまたは置換
-      const choice = await this.showImportDialog(Object.keys(importedData.words).length);
-      
-      if (choice === 'replace') {
-        this.dictionary.words = importedData.words;
-      } else if (choice === 'merge') {
-        Object.assign(this.dictionary.words, importedData.words);
-      }
-
-      this.dictionary.metadata.entryCount = Object.keys(this.dictionary.words).length;
-      this.dictionary.metadata.lastUpdate = Date.now();
-      
-      this.buildCache();
-      await this.save();
-      
-      return {
-        success: true,
-        imported: Object.keys(importedData.words).length,
-        total: this.dictionary.metadata.entryCount
-      };
-    } catch (error) {
-      console.error('Import failed:', error);
-      return {
-        success: false,
-        error: error.message
-      };
-    }
   }
 
   getStatistics() {

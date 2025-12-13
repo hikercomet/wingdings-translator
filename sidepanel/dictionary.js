@@ -7,102 +7,97 @@ class DictionaryPanel {
     this.newWordReadingEl = document.getElementById('newWordReading');
     this.wordCountEl = document.getElementById('wordCount');
 
-    this.words = []; // Store words as an array
-    this.filter = '';
+    this.currentQuery = '';
+    this.debouncedSearch = this.debounce(this.performSearch.bind(this), 250);
 
     this.init();
   }
 
   async init() {
     this.bindEvents();
-    await this.loadDictionary();
+    await this.loadInitialData();
   }
 
   bindEvents() {
-    let searchTimeout;
     this.searchInputEl.addEventListener('input', (e) => {
-      this.filter = e.target.value.toLowerCase().trim();
-      this.renderWordList();
-    });
-    this.searchInputEl.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        e.target.value = '';
-        this.filter = '';
-        this.renderWordList();
-        e.target.blur();
-      }
+      this.currentQuery = e.target.value;
+      console.log('Sidepanel: Search input changed. Query:', this.currentQuery);
+      this.debouncedSearch(this.currentQuery);
     });
 
     this.addWordBtnEl.addEventListener('click', () => this.addWord());
     this.wordListEl.addEventListener('click', (e) => {
       if (e.target.classList.contains('delete-btn')) {
-        setTimeout(() => this.loadDictionary(), 100);
+        this.deleteWord(e.target.dataset.kanji);
       }
     });
   }
 
-  async loadDictionary() {
+  toKatakana(text) {
+    return text.replace(/[\u3040-\u309F]/g, function(match) {
+      const chr = match.charCodeAt(0) + 0x60;
+      return String.fromCharCode(chr);
+    });
+  }
+
+  async loadInitialData() {
+    console.log('Sidepanel: Loading initial data...');
     try {
-      const data = await chrome.storage.sync.get('wingdings_dictionary');
-      const dictionary = data.wingdings_dictionary || { words: {} };
-      this.words = Object.entries(dictionary.words).map(([kanji, data]) => ({
-        kanji,
-        reading: data.reading,
-        romaji: data.romaji
-      })).sort((a, b) => a.kanji.localeCompare(b.kanji, 'ja'));
-      this.renderWordList();
-      this.wordCountEl.textContent = this.words.length;
+      // 統計情報を取得して総単語数を更新
+      const statsResponse = await chrome.runtime.sendMessage({ type: 'GET_STATISTICS' });
+      if (statsResponse && statsResponse.success) {
+        this.wordCountEl.textContent = statsResponse.statistics.totalWords;
+        console.log('Sidepanel: Dictionary stats loaded:', statsResponse.statistics);
+      }
+      // 初期表示として空クエリで検索（最近使った順などで表示される）
+      await this.performSearch('');
     } catch (e) {
-      console.error('Error loading dictionary:', e);
-      this.wordListEl.innerHTML = '<div class="word-item">辞書の読み込み中にエラーが発生しました。</div>';
+      console.error('Sidepanel: Error loading initial data:', e);
+      this.wordListEl.innerHTML = `<div class="word-item">${this.toKatakana('データノヨミコミチュウニエラーガハッセイシマシタ。')}</div>`;
     }
   }
 
-  renderWordList() {
+  async performSearch(query) {
+    console.log('Sidepanel: Performing search for query:', query);
+    try {
+      const response = await chrome.runtime.sendMessage({
+        type: 'SEARCH_DICTIONARY',
+        query: query
+      });
+
+      if (response && response.success) {
+        console.log('Sidepanel: Search response received:', response.results);
+        this.renderWordList(response.results);
+      } else {
+        console.error('Sidepanel: Search failed. Response:', response);
+        throw new Error(response?.error || 'SEARCH FAILED');
+      }
+    } catch (e) {
+      console.error('Sidepanel: Error performing search:', e);
+      this.wordListEl.innerHTML = `<div class="word-item">${this.toKatakana('ケンサクチュウニエラーガハッセイシマシタ。')}</div>`;
+    }
+  }
+
+  renderWordList(words) {
     this.wordListEl.innerHTML = '';
 
-    const filteredWords = this.words.filter(word => {
-      const kanjiLower = word.kanji.toLowerCase();
-      const readingLower = word.reading.toLowerCase();
-      const romajiLower = (word.romaji || '').toLowerCase();
-      return kanjiLower.includes(this.filter) || readingLower.includes(this.filter) || romajiLower.includes(this.filter);
-    }).sort((a, b) => {
-      const aScore = this.getSearchScore(a);
-      const bScore = this.getSearchScore(b);
-      if (aScore !== bScore) return bScore - aScore;
-      return a.kanji.localeCompare(b.kanji, 'ja');
-    });
-
-    if (filteredWords.length === 0) {
-        this.wordListEl.innerHTML = '<div class="word-item empty-state">該当する単語はありません。<br><small>ヒント: 単語、よみ、ローマ字で検索できます</small></div>';
-    } else {
-        filteredWords.forEach(word => {
-            const itemEl = document.createElement('div');
-            itemEl.className = 'word-item';
-            itemEl.innerHTML = `
-                <div class="word-display">
-                    <span class="word-kanji">${word.kanji}</span>
-                    <span class="word-reading">${word.reading} (${word.romaji || ''})</span>
-                </div>
-                <button class="delete-btn" data-kanji="${word.kanji}">削除</button>
-            `;
-            this.wordListEl.appendChild(itemEl);
-        });
-        this.wordListEl.querySelectorAll('.delete-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => this.deleteWord(e.target.dataset.kanji));
-        });
+    if (words.length === 0) {
+      this.wordListEl.innerHTML = `<div class="word-item">${this.toKatakana('ガイタウスルタンゴハアリマセン。')}</div>`;
+      return;
     }
 
-    const count = filteredWords.length;
-    this.wordCountEl.textContent = `${count} / ${this.words.length} 語`;
-  }
-
-  getSearchScore(word) {
-    const score = 0;
-    if (word.kanji.toLowerCase().includes(this.filter)) score += 3;
-    if (word.reading.toLowerCase().includes(this.filter)) score += 2;
-    if ((word.romaji || '').toLowerCase().includes(this.filter)) score += 1;
-    return score;
+    for (const word of words) {
+      const itemEl = document.createElement('div');
+      itemEl.className = 'word-item';
+      itemEl.innerHTML = `
+          <div class="word-display">
+              <span class="word-kanji">${word.kanji}</span>
+              <span class="word-reading">${word.reading} (${word.romaji.toUpperCase()})</span>
+          </div>
+          <button class="delete-btn" data-kanji="${word.kanji}">${this.toKatakana('サクジョ')}</button>
+      `;
+      this.wordListEl.appendChild(itemEl);
+    }
   }
 
   async addWord() {
@@ -110,115 +105,65 @@ class DictionaryPanel {
     const reading = this.newWordReadingEl.value.trim();
 
     if (!kanji || !reading) {
-        alert('単語とよみを両方入力してください。');
-        return;
+      alert(this.toKatakana('タンゴトヨミヲリョウホウニュウリョクシテクダサイ。'));
+      return;
     }
 
     try {
-        const romaji = this.convertToRomaji(reading);
-        const response = await chrome.runtime.sendMessage({
-            type: 'ADD_TO_DICTIONARY',
-            kanji: kanji,
-            reading: reading,
-            romaji: romaji
-        });
+      const response = await chrome.runtime.sendMessage({
+        type: 'ADD_TO_DICTIONARY',
+        kanji: kanji,
+        reading: reading
+      });
 
-        if (response && response.success) {
-            await this.loadDictionary();
-            this.newWordKanjiEl.value = '';
-            this.newWordReadingEl.value = '';
-        } else {
-            alert('単語の追加に失敗しました: ' + response?.error);
-        }
+      if (response && response.success) {
+        this.newWordKanjiEl.value = '';
+        this.newWordReadingEl.value = '';
+        // データを再読み込みして表示を更新
+        await this.loadInitialData();
+      } else {
+        alert(this.toKatakana('タンゴノツイカニシッパイシマシタ:') + response?.error);
+      }
     } catch (e) {
-        console.error('Error adding word:', e);
-        alert('単語の追加中にエラーが発生しました。');
+      console.error('Error adding word:', e);
+      alert(this.toKatakana('タンゴノツイカチュウニエラーガハッセイシマシタ。'));
     }
-  }
-
-  convertToRomaji(reading) {
-    const katakanaText = reading.replace(/[ぁ-ゔ]/g, s => String.fromCharCode(s.charCodeAt(0) + 0x60));
-    const kanaMap = {
-      'キャ': 'KYA', 'キュ': 'KYU', 'キョ': 'KYO',
-      'シャ': 'SHA', 'シュ': 'SHU', 'ショ': 'SHO', 'シェ': 'SHE',
-      'チャ': 'CHA', 'チュ': 'CHU', 'チョ': 'CHO', 'チェ': 'CHE',
-      'ニャ': 'NYA', 'ニュ': 'NYU', 'ニョ': 'NYO',
-      'ヒャ': 'HYA', 'ヒュ': 'HYU', 'ヒョ': 'HYO',
-      'ミャ': 'MYA', 'ミュ': 'MYU', 'ミョ': 'MYO',
-      'リャ': 'RYA', 'リュ': 'RYU', 'リョ': 'RYO',
-      'ギャ': 'GYA', 'ギュ': 'GYU', 'ギョ': 'GYO',
-      'ジャ': 'JA', 'ジュ': 'JU', 'ジョ': 'JO', 'ジェ': 'JE',
-      'ビャ': 'BYA', 'ビュ': 'BYU', 'ビョ': 'BYO',
-      'ピャ': 'PYA', 'ピュ': 'PYU', 'ピョ': 'PYO',
-      'ア': 'A', 'イ': 'I', 'ウ': 'U', 'エ': 'E', 'オ': 'O',
-      'カ': 'KA', 'キ': 'KI', 'ク': 'KU', 'ケ': 'KE', 'コ': 'KO',
-      'ガ': 'GA', 'ギ': 'GI', 'グ': 'GU', 'ゲ': 'GE', 'ゴ': 'GO',
-      'サ': 'SA', 'シ': 'SHI', 'ス': 'SU', 'セ': 'SE', 'ソ': 'SO',
-      'ザ': 'ZA', 'ジ': 'JI', 'ズ': 'ZU', 'ゼ': 'ZE', 'ゾ': 'ZO',
-      'タ': 'TA', 'チ': 'CHI', 'ツ': 'TSU', 'テ': 'TE', 'ト': 'TO',
-      'ダ': 'DA', 'デ': 'DE', 'ド': 'DO',
-      'ナ': 'NA', 'ニ': 'NI', 'ヌ': 'NU', 'ネ': 'NE', 'ノ': 'NO',
-      'ハ': 'HA', 'ヒ': 'HI', 'フ': 'FU', 'ヘ': 'HE', 'ホ': 'HO',
-      'バ': 'BA', 'ビ': 'BI', 'ブ': 'BU', 'ベ': 'BE', 'ボ': 'BO',
-      'パ': 'PA', 'ピ': 'PI', 'プ': 'PU', 'ペ': 'PE', 'ポ': 'PO',
-      'マ': 'MA', 'ミ': 'MI', 'ム': 'MU', 'メ': 'ME', 'モ': 'MO',
-      'ヤ': 'YA', 'ユ': 'YU', 'ヨ': 'YO',
-      'ラ': 'RA', 'リ': 'RI', 'ル': 'RU', 'レ': 'RE', 'ロ': 'RO',
-      'ワ': 'WA', 'ン': 'N', 'ッ': '', 'ー': '-'
-    };
-    let result = '';
-    let textToProcess = katakanaText;
-    for (let i = 0; i < textToProcess.length; i++) {
-      let twoChar = textToProcess.substring(i, i + 2);
-      if (kanaMap[twoChar]) {
-        result += kanaMap[twoChar];
-        i++;
-        continue;
-      }
-      let oneChar = textToProcess[i];
-      if (oneChar === 'ッ') {
-        let nextChar = textToProcess[i + 1];
-        if (nextChar && kanaMap[nextChar]) {
-          let firstRomajiChar = kanaMap[nextChar][0];
-          if (firstRomajiChar !== 'N') {
-            result += firstRomajiChar;
-          }
-        }
-        continue;
-      }
-      result += kanaMap[oneChar] || oneChar;
-    }
-    result = result.replace(/([AEIOU])-/g, '$1$1');
-    return result.toUpperCase();
   }
 
   async deleteWord(kanji) {
-    if (!confirm(`「${kanji}」を辞書から削除しますか？`)) {
-        return;
+    if (!confirm(`${this.toKatakana('「')}${kanji}${this.toKatakana('」ヲジショカラサクジョシマスカ？')}`)) {
+      return;
     }
 
     try {
-<<<<<<< HEAD
-        const data = await chrome.storage.sync.get('wingdings_dictionary');
-        const dictionary = data.wingdings_dictionary || { words: {} };
-        if (dictionary.words && dictionary.words[kanji]) {
-            delete dictionary.words[kanji];
-            dictionary.metadata = dictionary.metadata || {};
-            dictionary.metadata.entryCount = Object.keys(dictionary.words).length;
-            dictionary.metadata.lastUpdate = Date.now();
-            await chrome.storage.sync.set({ 'wingdings_dictionary': dictionary });
-            await this.loadDictionary();
-            alert('単語を削除しました。');
-        } else {
-            alert('単語が見つかりませんでした。');
-        }
+      const response = await chrome.runtime.sendMessage({
+        type: 'REMOVE_FROM_DICTIONARY',
+        kanji: kanji
+      });
+
+      if (response && response.success) {
+        // データを再読み込みして表示を更新
+        await this.loadInitialData();
+      } else {
+        alert(this.toKatakana('タンゴノサクジョニシッパイシマシタ。'));
+      }
     } catch (e) {
-        console.error('Error deleting word:', e);
-        alert('削除エラー: ' + e.message);
+      console.error('Error deleting word:', e);
+      alert(this.toKatakana('サクジョチュウニエラーガハッセイシマシタ:') + e.message);
     }
+  }
+
+  debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+      const later = () => {
+        clearTimeout(timeout);
+        func(...args);
+      };
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    };
   }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  new DictionaryPanel();
-});
+document.addEventListener('DOMContentLoaded', () => new DictionaryPanel());

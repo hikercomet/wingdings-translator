@@ -1,16 +1,16 @@
 :root {
   --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --font-mono: "SF Mono", Monaco, Menlo, Consolas, "Liberation Mono", monospace;
-  --font-wing: 'Wingdings 3', 'Wingdings', 'Zapf Dingbats', monospace;
+  --font-wing: 'Wingdings', 'Wingdings 3', 'Zapf Dingbats', 'Segoe UI Symbol', 'Symbola', 'Apple Color Emoji', 'Segoe UI Emoji', monospace;
 
   --bg-primary: #000000;
   --bg-secondary: rgba(255,255,255,0.03);
   --bg-surface: rgba(255,255,255,0.06);
   --bg-hover: rgba(255,255,255,0.08);
 
-  --purple-500: #8b5cf6;
-  --purple-600: #7c3aed;
-  --purple-700: #6d28d9;
+  --accent-primary: #666666; /* Medium Gray */
+  --accent-secondary: #333333; /* Dark Gray */
+  --accent-text: #CCCCCC; /* Light gray for links/accents */
 
   --text-primary: rgba(255,255,255,0.95);
   --text-secondary: rgba(255,255,255,0.7);
@@ -99,7 +99,7 @@ footer {
 }
 
 footer a {
-  color: var(--purple-500);
+  color: var(--accent-text); /* Changed from purple */
   text-decoration: none;
   font-weight: 600;
   font-size: 15px;
@@ -107,7 +107,7 @@ footer a {
 }
 
 footer a:hover {
-  color: var(--purple-600);
+  color: var(--accent-primary); /* Changed from purple */
   text-decoration: underline;
 }
 
@@ -132,7 +132,7 @@ footer a:hover {
 }
 
 .mapping-table th {
-  background: linear-gradient(135deg, var(--purple-600), var(--purple-700));
+  background: var(--accent-secondary); /* Changed from purple gradient */
   color: white;
   font-weight: 600;
   text-transform: uppercase;
@@ -157,11 +157,11 @@ footer a:hover {
 }
 
 .error {
-  color: #ef4444;
+  color: var(--accent-text); /* Changed from red */
   font-weight: 600;
   padding: 16px;
-  background: rgba(239,68,68,0.1);
+  background: rgba(102,102,102,0.1); /* Changed from red rgba */
   border-radius: var(--radius);
-  border-left: 4px solid #ef4444;
+  border-left: 4px solid var(--accent-text); /* Changed from red */
 }
 

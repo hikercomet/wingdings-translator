@@ -44,7 +44,7 @@ body {
   margin: 0;
   padding: 0;
   height: 100vh;
-  overflow: hidden;
+  /* overflow: hidden; */ /* REMOVED: This was preventing scrolling */
 }
 
 .container {

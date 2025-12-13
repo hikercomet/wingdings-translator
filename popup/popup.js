@@ -26,7 +26,17 @@ class WingdingsPopup {
       charCount.classList.toggle('warning', count > 600);
     });
 
-    this.autoConvertCheckbox.addEventListener('change', () => this.saveSettings());
+    this.autoConvertCheckbox.addEventListener('change', () => {
+      console.log('Popup: autoConvertCheckbox changed to', this.autoConvertCheckbox.checked);
+      this.saveSettings();
+    });
+  }
+
+  toKatakana(text) {
+    return text.replace(/[\u3040-\u309F]/g, function(match) {
+      const chr = match.charCodeAt(0) + 0x60;
+      return String.fromCharCode(chr);
+    });
   }
 
   async loadWingdingsMap() {
@@ -55,40 +65,44 @@ class WingdingsPopup {
         const stats = response.statistics;
         statsElement.innerHTML = `
           <div class="stat-item">
-            <span class="stat-label">登録単語数:</span>
+            <span class="stat-label">${this.toKatakana('登録単語数')}:</span>
             <span class="stat-value">${stats.totalWords}</span>
           </div>
           <div class="stat-item">
-            <span class="stat-label">ストレージ使用率:</span>
+            <span class="stat-label">${this.toKatakana('ストレージ使用率')}:</span>
             <span class="stat-value ${stats.storageUsage > 80 ? 'warning' : ''}">${stats.storageUsage}%</span>
           </div>
         `;
       } else {
-        statsElement.textContent = '統計の取得に失敗しました。';
+        statsElement.textContent = this.toKatakana('統計の取得に失敗しました。');
       }
     } catch (error) {
       console.error('Error getting dictionary stats:', error);
-      statsElement.textContent = 'エラーが発生しました。';
+      statsElement.textContent = this.toKatakana('エラーガハッセイシマシタ。');
     }
   }
 
   async loadSettings() {
+    console.log('Popup: Loading settings...');
     try {
       const settings = await chrome.storage.sync.get('wingdingsSettings');
       this.autoConvertCheckbox.checked = settings.wingdingsSettings?.autoConvert ?? true; // Default to true
+      console.log('Popup: Settings loaded. autoConvert:', this.autoConvertCheckbox.checked);
     } catch (e) {
-      console.error('Error loading settings:', e);
+      console.error('Popup: Error loading settings:', e);
     }
   }
 
   async saveSettings() {
     const autoConvert = this.autoConvertCheckbox.checked;
+    console.log('Popup: Saving settings. autoConvert:', autoConvert);
     try {
       await chrome.storage.sync.set({ wingdingsSettings: { autoConvert } });
       // Notify background script about the change
-      await chrome.runtime.sendMessage({ type: 'UPDATE_SETTINGS', settings: { autoConvert } });
+      const response = await chrome.runtime.sendMessage({ type: 'UPDATE_SETTINGS', settings: { autoConvert } });
+      console.log('Popup: UPDATE_SETTINGS message sent. Response:', response);
     } catch (e) {
-      console.error('Error saving settings:', e);
+      console.error('Popup: Error saving settings:', e);
     }
   }
 
@@ -108,7 +122,6 @@ class WingdingsPopup {
     const text = document.getElementById('inputText').value.trim();
     if (!text) return;
     // Content script will still return the original text, but we convert it to actual Wingdings chars here
-    // The content script's CONVERT_TEXT might be for on-page conversion, not for popup display.
     // For popup display, we directly convert using the map.
     const wingdingsChars = this.asciiToWingdings(text);
 
