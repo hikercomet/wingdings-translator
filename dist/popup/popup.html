@@ -2,19 +2,19 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=300,height=500">
+  <meta name="viewport" content="width=300,height=550">
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
   <div class="header">
     <h1>Wingdings Translator</h1>
-    <div class="version">v1.0.0</div>
+    <div class="version">v1.1.0</div>
   </div>
 
   <div class="input-section">
     <textarea 
       id="inputText" 
-      placeholder="Enter text to convert here (max 666 chars)"
+      placeholder="ENTER TEXT TO CONVERT HERE (MAX 666 CHARS)"
       maxlength="666"
     ></textarea>
     <div class="char-counter">
@@ -23,48 +23,53 @@
   </div>
 
   <div class="buttons">
-    <button id="convertBtn" class="btn primary">Convert</button>
-    <button id="mappingBtn" class="btn secondary">Chart</button>
+    <button id="convertBtn" class="btn primary">CONVERT</button>
+    <button id="mappingBtn" class="btn secondary">CHART</button>
   </div>
 
-      <div id="resultSection" class="result-box" style="display:none;">
-        <h4>Result:</h4>
-        <p id="resultText"></p>
-      </div>
-    </div>
+  <div id="resultSection" class="result-box" style="display:none;">
+    <h4>RESULT:</h4>
+    <p id="resultText"></p>
+  </div>
 
-    <hr>
+  <hr>
 
-    <div class="section">
-      <h3>Wingdings → Text</h3>
-      <textarea id="wingdingsInput" placeholder="Paste Wingdings here" rows="4"></textarea>
-      <button id="convertFromBtn" class="btn primary">Reverse Convert</button>
-      <div id="reverseResultSection" class="result-box" style="display:none;">
-        <h4>Reverse Result:</h4>
-        <p id="reverseResultText"></p>
-      </div>
+  <div class="section">
+    <h3>WINGDINGS → TEXT</h3>
+    <textarea id="wingdingsInput" placeholder="PASTE WINGDINGS HERE" rows="4"></textarea>
+    <button id="convertFromBtn" class="btn primary">REVERSE CONVERT</button>
+    <div id="reverseResultSection" class="result-box" style="display:none;">
+      <h4>REVERSE RESULT:</h4>
+      <p id="reverseResultText"></p>
     </div>
+  </div>
 
   <div class="page-actions">
     <hr>
-    <h3>Page Actions</h3>
-    <button id="convertPageBtn" class="page-btn">Convert Entire Page</button>
-    <button id="revertPageBtn" class="page-btn">Revert</button>
+    <h3>PAGE ACTIONS</h3>
+    <div class="setting-item">
+      <label for="autoConvertCheckbox">
+        <input type="checkbox" id="autoConvertCheckbox">
+        ページヨミコミジドウヘンカン
+      </label>
+    </div>
+    <button id="convertPageBtn" class="page-btn">CONVERT ENTIRE PAGE</button>
+    <button id="revertPageBtn" class="page-btn">REVERT</button>
   </div>
 
   <div class="dictionary-section">
     <hr>
-    <h3>Personal Dictionary</h3>
+    <h3>コジンジショ</h3>
     <div class="stats" id="dictStats">
-      Loading...
+      LOADING...
     </div>
-    <button id="dictionaryBtn" class="btn secondary">Manage Dictionary</button>
+    <button id="dictionaryBtn" class="btn secondary">ジショカンリ</button>
   </div>
 
   <div class="footer">
     <div class="links">
-      <a href="#" id="helpLink">Help</a> | 
-      <a href="#" id="aboutLink">About</a>
+      <a href="#" id="helpLink">HELP</a> | 
+      <a href="#" id="aboutLink">ABOUT</a>
     </div>
   </div>
 

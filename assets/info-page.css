@@ -1,7 +1,7 @@
 :root {
   --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --font-mono: "SF Mono", Monaco, Menlo, Consolas, "Liberation Mono", monospace;
-  --font-wing: 'Wingdings 3', 'Wingdings', 'Zapf Dingbats', monospace;
+  --font-wing: 'Wingdings', 'Wingdings 3', 'Zapf Dingbats', 'Segoe UI Symbol', 'Symbola', 'Apple Color Emoji', 'Segoe UI Emoji', monospace;
 
   --bg-primary: #000000;
   --bg-secondary: rgba(255,255,255,0.03);
