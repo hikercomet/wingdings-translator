@@ -175,4 +175,3 @@ This extension was created by hikercomet.
 ### クレジット
 
 この拡張機能は hikercomet によって作成されました。
-�リンターのエラーを一切出さないことを確認してください。
