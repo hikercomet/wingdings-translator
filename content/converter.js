@@ -22,6 +22,7 @@ class TextConverter {
 
   async init(dicPath) {
     return new Promise(async (resolve, reject) => {
+
       let userDic = [];
       try {
         console.log('Converter: Requesting user dictionary from background...');
