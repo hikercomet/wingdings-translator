@@ -9,8 +9,6 @@ class TextConverter {
     this.wingdingsMap = wingdingsMapData.ascii_to_wingdings;
     // Lazy-load reverse map to save memory on initialization
     this._reverseWingdingsMap = null;
-    // User dictionary for custom word readings
-    this.userDictionary = {};
   }
 
   get reverseWingdingsMap() {
@@ -24,7 +22,7 @@ class TextConverter {
 
   async init(dicPath) {
     return new Promise(async (resolve, reject) => {
-      // Load user dictionary for custom word readings
+
       let userDic = [];
       try {
         console.log('Converter: Requesting user dictionary from background...');
@@ -32,10 +30,10 @@ class TextConverter {
         if (response && response.success && response.dictionary) {
           console.log('Converter: User dictionary received from background:', response.dictionary);
           userDic = Object.entries(response.dictionary).map(([kanji, data]) => {
-            // Kuromoji user dictionary format (simplified):
-            // surface_form,left_id,right_id,cost,part_of_speech,reading
-            const readingInKatakana = data.reading.replace(/[ぁ-ゖ]/g, s => String.fromCharCode(s.charCodeAt(0) + 0x60));
-            return `${kanji},1285,1285,3000,カスタム名詞,${readingInKatakana}`;
+            // Simplified 3-part CSV format for Kuromoji user dictionary:
+            // surface_form,part_of_speech,reading
+            const readingInKatakana = data.reading.replace(/[ぁ-ゔ]/g, s => String.fromCharCode(s.charCodeAt(0) + 0x60));
+            return `${kanji},名詞,${readingInKatakana}`;
           });
         }
       } catch (e) {
@@ -78,18 +76,7 @@ class TextConverter {
     console.log('Converter: Tokens:', tokens);
     
     const romajiParts = tokens.map(token => {
-        const surfaceForm = token.surface_form;
-        
-        // Check user dictionary first for custom readings
-        if (this.userDictionary[surfaceForm]) {
-          const userEntry = this.userDictionary[surfaceForm];
-          // Convert hiragana reading to katakana for consistent processing
-          const readingInKatakana = userEntry.reading.replace(/[ぁ-ゔ]/g, s => String.fromCharCode(s.charCodeAt(0) + 0x60));
-          console.log('[Wingdings-Converter] Using user dictionary for:', surfaceForm, '->', readingInKatakana);
-          return this.convertToRomaji(readingInKatakana);
-        }
-        
-        const reading = token.reading || surfaceForm;
+        const reading = token.reading || token.surface_form;
         if (!/[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/.test(reading)) {
             return reading;
         }

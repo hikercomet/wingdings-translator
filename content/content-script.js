@@ -43,7 +43,7 @@ class MainContentScript {
       case 'PAGE_LOADED': // This message is now used for conditional auto-conversion
       case 'CONVERT_PAGE_REQUEST':
         await this.ensureConverterInitialized();
-        this.domManipulator.convertPage(this.converter);
+        await this.domManipulator.convertPage(this.converter); // Added await
         return { success: true };
       case 'REVERT_PAGE_REQUEST':
         this.domManipulator.revertPage();
