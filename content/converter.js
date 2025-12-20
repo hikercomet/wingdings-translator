@@ -29,10 +29,10 @@ class TextConverter {
         if (response && response.success && response.dictionary) {
           console.log('Converter: User dictionary received from background:', response.dictionary);
           userDic = Object.entries(response.dictionary).map(([kanji, data]) => {
-            // Kuromoji user dictionary format (simplified):
-            // surface_form,left_id,right_id,cost,part_of_speech,reading
-            const readingInKatakana = data.reading.replace(/[ぁ-ゖ]/g, s => String.fromCharCode(s.charCodeAt(0) + 0x60));
-            return `${kanji},1285,1285,3000,カスタム名詞,${readingInKatakana}`;
+            // Simplified 3-part CSV format for Kuromoji user dictionary:
+            // surface_form,part_of_speech,reading
+            const readingInKatakana = data.reading.replace(/[ぁ-ゔ]/g, s => String.fromCharCode(s.charCodeAt(0) + 0x60));
+            return `${kanji},名詞,${readingInKatakana}`;
           });
         }
       } catch (e) {
