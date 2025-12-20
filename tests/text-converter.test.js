@@ -11,6 +11,9 @@ jest.mock('kuromoji', () => ({
           if (text.includes('こんにちは')) {
             return [{ surface_form: 'こんにちは', reading: 'コンニチハ' }];
           }
+          if (text.includes('漢字')) {
+            return [{ surface_form: '漢字', reading: 'カンジ' }];
+          }
           return [{ surface_form: text, reading: text }];
         }
       };
@@ -51,5 +54,21 @@ describe('TextConverter', () => {
     const result = await converter.convert('こんにちは');
     expect(converter.convertToRomaji).toHaveBeenCalledWith('コンニチハ');
     expect(result).toBe('\uF041\uF042');
+  });
+
+  test('should use user dictionary reading when word is registered', async () => {
+    // Set up user dictionary with a custom word
+    converter.userDictionary = {
+      '漢字': { reading: 'かんじ', romaji: 'kanji' }
+    };
+    
+    // Mock convertToRomaji to verify the correct reading is used
+    const mockConvertToRomaji = jest.fn().mockReturnValue('KANJI');
+    converter.convertToRomaji = mockConvertToRomaji;
+    
+    const result = await converter.convert('漢字');
+    
+    // Should use the user dictionary reading (converted to katakana)
+    expect(mockConvertToRomaji).toHaveBeenCalledWith('カンジ');
   });
 });
