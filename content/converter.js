@@ -33,7 +33,7 @@ class TextConverter {
           userDic = Object.entries(response.dictionary).map(([kanji, data]) => {
             // Kuromoji user dictionary format (simplified):
             // surface_form,left_id,right_id,cost,part_of_speech,reading
-            const readingInKatakana = data.reading.replace(/[ぁ-ゔ]/g, s => String.fromCharCode(s.charCodeAt(0) + 0x60));
+            const readingInKatakana = data.reading.replace(/[ぁ-ゖ]/g, s => String.fromCharCode(s.charCodeAt(0) + 0x60));
             return `${kanji},1285,1285,3000,カスタム名詞,${readingInKatakana}`;
           });
         }
