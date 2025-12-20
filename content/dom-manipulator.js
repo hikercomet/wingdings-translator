@@ -214,7 +214,7 @@ class DOMManipulator {
       document.body.appendChild(progressBar);
     }
     
-    progressBar.textContent = `Converting... ${progress}% (${current}/${total})`;
+
     
     if (progress >= 100) {
       setTimeout(() => {
