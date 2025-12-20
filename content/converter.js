@@ -25,6 +25,7 @@ class TextConverter {
   async init(dicPath) {
     return new Promise(async (resolve, reject) => {
       // Load user dictionary for custom word readings
+      let userDic = [];
       try {
         console.log('Converter: Requesting user dictionary from background...');
         const response = await chrome.runtime.sendMessage({ type: 'GET_USER_DICTIONARY' });
