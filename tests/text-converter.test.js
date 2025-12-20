@@ -55,7 +55,6 @@ describe('TextConverter', () => {
 
   test('should use user dictionary reading for registered words', async () => {
     // Add a word to the user dictionary with a custom reading
-    // For example: "田中" with reading "タナカ" (TANAKA)
     converter.userDictionary.set('テスト単語', 'カスタムヨミ');
     
     // Mock the convertToRomaji to be predictable for this test
