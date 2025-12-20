@@ -26,18 +26,38 @@ class TextConverter {
     return new Promise(async (resolve, reject) => {
       // Load user dictionary for custom word readings
       try {
+        console.log('Converter: Requesting user dictionary from background...');
         const response = await chrome.runtime.sendMessage({ type: 'GET_USER_DICTIONARY' });
         if (response && response.success && response.dictionary) {
-          this.userDictionary = response.dictionary;
-          console.log('TextConverter: User dictionary loaded with', Object.keys(this.userDictionary).length, 'words.');
+          console.log('Converter: User dictionary received from background:', response.dictionary);
+          userDic = Object.entries(response.dictionary).map(([kanji, data]) => {
+            // Kuromoji user dictionary format (simplified):
+            // surface_form,left_id,right_id,cost,part_of_speech,reading
+            const readingInKatakana = data.reading.replace(/[ぁ-ゖ]/g, s => String.fromCharCode(s.charCodeAt(0) + 0x60));
+            return `${kanji},1285,1285,3000,カスタム名詞,${readingInKatakana}`;
+          });
         }
       } catch (e) {
-        console.error('Failed to load user dictionary:', e);
+        console.error('Converter: Failed to load user dictionary:', e);
       }
 
-      kuromoji.builder({ dicPath }).build((err, tokenizer) => {
-        if (err) reject(err);
-        else { this.tokenizer = tokenizer; resolve(); }
+      const builderOptions = { dicPath };
+      if (userDic.length > 0) {
+        builderOptions.userDic = userDic;
+        console.log('Converter: Initializing Kuromoji with user dictionary:', userDic);
+      } else {
+        console.log('Converter: Initializing Kuromoji without user dictionary.');
+      }
+
+      kuromoji.builder(builderOptions).build((err, tokenizer) => {
+        if (err) {
+          console.error('Converter: Kuromoji build failed.', err);
+          reject(err);
+        } else {
+          this.tokenizer = tokenizer;
+          console.log('Converter: Kuromoji initialized successfully.');
+          resolve();
+        }
       });
     });
   }
@@ -48,8 +68,13 @@ class TextConverter {
   }
 
   async convert(text) {
-    if (!this.tokenizer) return text;
+    if (!this.tokenizer) {
+      console.error('Converter: Tokenizer not initialized before convert call.');
+      return text;
+    }
+    console.log('Converter: Tokenizing text:', text);
     const tokens = this.tokenizer.tokenize(text);
+    console.log('Converter: Tokens:', tokens);
     
     const romajiParts = tokens.map(token => {
         const surfaceForm = token.surface_form;
