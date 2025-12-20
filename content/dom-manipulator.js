@@ -31,6 +31,8 @@ class DOMManipulator {
     
     await this.batchProcess(nodesToProcess, async (batch) => {
       for (const node of batch) {
+        // Note: shouldProcess was already checked during pre-filtering above
+        // Keeping the parent check here as nodes can be removed during processing
         if (!node.parentNode) continue; // Node may have been removed by a previous operation
         const originalText = node.textContent;
         

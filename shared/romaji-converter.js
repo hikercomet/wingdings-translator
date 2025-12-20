@@ -59,6 +59,7 @@ function convertToRomaji(text) {
           let nextChar = text[i + 1];
           if (nextChar && KANA_MAP[nextChar]) {
               let firstRomajiChar = KANA_MAP[nextChar][0];
+              // Don't double 'N' as ッン doesn't geminate
               if (firstRomajiChar !== 'N') {
                 result += firstRomajiChar;
               }
