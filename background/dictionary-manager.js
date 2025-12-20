@@ -1,3 +1,5 @@
+const { convertToRomaji: sharedConvertToRomaji } = require('../shared/romaji-converter.js');
+
 class DictionaryManager {
   constructor() {
     this.STORAGE_KEY = 'wingdings_dictionary';
@@ -70,66 +72,10 @@ class DictionaryManager {
   }
 
   computeRomaji(reading) {
+    // Convert hiragana to katakana for consistent processing
     const katakanaText = reading.replace(/[ぁ-ゔ]/g, s => String.fromCharCode(s.charCodeAt(0) + 0x60));
-    const kanaMap = {
-      'キャ': 'KYA', 'キュ': 'KYU', 'キョ': 'KYO',
-      'シャ': 'SHA', 'シュ': 'SHU', 'ショ': 'SHO', 'シェ': 'SHE',
-      'チャ': 'CHA', 'チュ': 'CHU', 'チョ': 'CHO', 'チェ': 'CHE',
-      'ニャ': 'NYA', 'ニュ': 'NYU', 'ニョ': 'NYO',
-      'ヒャ': 'HYA', 'ヒュ': 'HYU', 'ヒョ': 'HYO',
-      'ミャ': 'MYA', 'ミュ': 'MYU', 'ミョ': 'MYO',
-      'リャ': 'RYA', 'リュ': 'RYU', 'リョ': 'RYO',
-      'ギャ': 'GYA', 'ギュ': 'GYU', 'ギョ': 'GYA',
-      'ジャ': 'JA', 'ジュ': 'JU', 'ジョ': 'JO', 'ジェ': 'JE',
-      'ビャ': 'BYA', 'ビュ': 'BYU', 'ビョ': 'BYO',
-      'ピャ': 'PYA', 'ピュ': 'PYU', 'ピョ': 'PYO',
-      'ティ': 'TI', 'トゥ': 'TU',
-      'ディ': 'DI', 'ドゥ': 'DU',
-      'ファ': 'FA', 'フィ': 'FI', 'フェ': 'FE', 'フォ': 'FO',
-      'ウィ': 'WI', 'ウェ': 'WE', 'ウォ': 'WO',
-      'ヴァ': 'VA', 'ヴィ': 'VI', 'ヴ': 'VU', 'ヴェ': 'VE', 'ヴォ': 'VO',
-      'ア': 'A', 'イ': 'I', 'ウ': 'U', 'エ': 'E', 'オ': 'O',
-      'カ': 'KA', 'キ': 'KI', 'ク': 'KU', 'ケ': 'KE', 'コ': 'KO',
-      'ガ': 'GA', 'ギ': 'GI', 'グ': 'GU', 'ゲ': 'GE', 'ゴ': 'GO',
-      'サ': 'SA', 'シ': 'SHI', 'ス': 'SU', 'セ': 'SE', 'ソ': 'SO',
-      'ザ': 'ZA', 'ジ': 'JI', 'ズ': 'ZU', 'ゼ': 'ZE', 'ゾ': 'ZO',
-      'タ': 'TA', 'チ': 'CHI', 'ツ': 'TSU', 'テ': 'TE', 'ト': 'TO',
-      'ダ': 'DA', 'デ': 'DE', 'ド': 'DO',
-      'ナ': 'NA', 'ニ': 'NI', 'ヌ': 'NU', 'ネ': 'NE', 'ノ': 'NO',
-      'ハ': 'HA', 'ヒ': 'HI', 'フ': 'FU', 'ヘ': 'HE', 'ホ': 'HO',
-      'バ': 'BA', 'ビ': 'BI', 'ブ': 'BU', 'ベ': 'BE', 'ボ': 'BO',
-      'パ': 'PA', 'ピ': 'PI', 'プ': 'PU', 'ペ': 'PE', 'ポ': 'PO',
-      'マ': 'MA', 'ミ': 'MI', 'ム': 'MU', 'メ': 'ME', 'モ': 'MO',
-      'ヤ': 'YA', 'ユ': 'YU', 'ヨ': 'YO',
-      'ラ': 'RA', 'リ': 'RI', 'ル': 'RU', 'レ': 'RE', 'ロ': 'RO',
-      'ワ': 'WA', 'ヰ': 'I', 'ヱ': 'E', 'ヲ': 'O', 'ン': 'N',
-      'ァ': 'A', 'ィ': 'I', 'ゥ': 'U', 'ェ': 'E', 'ォ': 'O',
-      'ッ': '', 'ー': '-'
-    };
-    let result = '';
-    let textToProcess = katakanaText;
-    for (let i = 0; i < textToProcess.length; i++) {
-      let twoChar = textToProcess.substring(i, i + 2);
-      if (kanaMap[twoChar]) {
-        result += kanaMap[twoChar];
-        i++;
-        continue;
-      }
-      let oneChar = textToProcess[i];
-      if (oneChar === 'ッ') {
-        let nextChar = textToProcess[i + 1];
-        if (nextChar && kanaMap[nextChar]) {
-          let firstRomajiChar = kanaMap[nextChar][0];
-          if (firstRomajiChar !== 'N') {
-            result += firstRomajiChar;
-          }
-        }
-        continue;
-      }
-      result += kanaMap[oneChar] || oneChar;
-    }
-    result = result.replace(/([AEIOU])-/g, '$1$1');
-    return result.toUpperCase();
+    // Use shared, optimized conversion function
+    return sharedConvertToRomaji(katakanaText);
   }
 
   async removeWord(kanji) {
@@ -152,41 +98,69 @@ class DictionaryManager {
 
   async searchWords(query, limit = 50) {
     console.log('DictionaryManager: Searching for query:', query);
+    
+    // Early return for empty query - return all words sorted by relevance
+    if (!query) {
+      const allWords = Array.from(this.cache.entries())
+        .slice(0, limit)
+        .map(([kanji, data]) => ({
+          kanji: kanji,
+          ...data,
+          relevance: data.frequency + Math.max(0, 30 - (Date.now() - data.lastUsed) / (1000 * 60 * 60 * 24))
+        }))
+        .sort((a, b) => b.relevance - a.relevance);
+      
+      console.log('DictionaryManager: Search results count:', allWords.length);
+      return allWords;
+    }
+
     const results = [];
     const queryLower = query.toLowerCase();
 
+    // Optimize: Calculate relevance only for matching entries
     for (const [kanji, data] of this.cache.entries()) {
-      if (results.length >= limit) break;
-      
+      // Check for matches first (cheaper operations)
       if (kanji.includes(query) || 
           data.reading.includes(query) || 
           data.romaji.toLowerCase().includes(queryLower)) {
+        
+        // Only calculate relevance for matches
         results.push({
           kanji: kanji,
           ...data,
           relevance: this.calculateRelevance(query, kanji, data)
         });
+
+        // Early termination: stop searching once we have enough highly relevant results
+        // We get some extra to ensure we have the best matches after sorting
+        if (results.length >= limit * 2) break;
       }
     }
 
-    // 関連度でソート
+    // Sort by relevance and limit results
     results.sort((a, b) => b.relevance - a.relevance);
-    console.log('DictionaryManager: Search results count:', results.length);
-    return results;
+    const finalResults = results.slice(0, limit);
+    
+    console.log('DictionaryManager: Search results count:', finalResults.length);
+    return finalResults;
   }
 
   calculateRelevance(query, kanji, data) {
     let score = 0;
     
+    // Pre-calculate lowercase versions once
+    const queryLower = query.toLowerCase();
+    const romajiLower = data.romaji.toLowerCase();
+    
     // 完全一致
     if (kanji === query) score += 100;
     if (data.reading === query) score += 90;
-    if (data.romaji === query.toLowerCase()) score += 80;
+    if (romajiLower === queryLower) score += 80;
     
     // 前方一致
     if (kanji.startsWith(query)) score += 50;
     if (data.reading.startsWith(query)) score += 40;
-    if (data.romaji.startsWith(query.toLowerCase())) score += 30;
+    if (romajiLower.startsWith(queryLower)) score += 30;
     
     // 使用頻度
     score += Math.min(data.frequency, 50);
