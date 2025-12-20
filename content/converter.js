@@ -9,6 +9,8 @@ class TextConverter {
     this.wingdingsMap = wingdingsMapData.ascii_to_wingdings;
     // Lazy-load reverse map to save memory on initialization
     this._reverseWingdingsMap = null;
+    // User dictionary for custom word readings
+    this.userDictionary = new Map();
   }
 
   get reverseWingdingsMap() {
@@ -23,30 +25,26 @@ class TextConverter {
   async init(dicPath) {
     return new Promise(async (resolve, reject) => {
 
-      let userDic = [];
+      // Load user dictionary for custom word readings
       try {
         console.log('Converter: Requesting user dictionary from background...');
         const response = await chrome.runtime.sendMessage({ type: 'GET_USER_DICTIONARY' });
         if (response && response.success && response.dictionary) {
           console.log('Converter: User dictionary received from background:', response.dictionary);
-          userDic = Object.entries(response.dictionary).map(([kanji, data]) => {
-            // Simplified 3-part CSV format for Kuromoji user dictionary:
-            // surface_form,part_of_speech,reading
+          // Store user dictionary as a Map for O(1) lookup during conversion
+          this.userDictionary.clear();
+          Object.entries(response.dictionary).forEach(([kanji, data]) => {
+            // Store reading in katakana for consistent processing
             const readingInKatakana = data.reading.replace(/[ぁ-ゔ]/g, s => String.fromCharCode(s.charCodeAt(0) + 0x60));
-            return `${kanji},名詞,${readingInKatakana}`;
+            this.userDictionary.set(kanji, readingInKatakana);
           });
+          console.log('Converter: User dictionary loaded with', this.userDictionary.size, 'entries.');
         }
       } catch (e) {
         console.error('Converter: Failed to load user dictionary:', e);
       }
 
       const builderOptions = { dicPath };
-      if (userDic.length > 0) {
-        builderOptions.userDic = userDic;
-        console.log('Converter: Initializing Kuromoji with user dictionary:', userDic);
-      } else {
-        console.log('Converter: Initializing Kuromoji without user dictionary.');
-      }
 
       kuromoji.builder(builderOptions).build((err, tokenizer) => {
         if (err) {
@@ -76,7 +74,20 @@ class TextConverter {
     console.log('Converter: Tokens:', tokens);
     
     const romajiParts = tokens.map(token => {
-        const reading = token.reading || token.surface_form;
+        // Check user dictionary first for custom readings
+        const surfaceForm = token.surface_form;
+        const userReading = this.userDictionary.get(surfaceForm);
+        
+        let reading;
+        if (userReading) {
+          // Use custom reading from user dictionary
+          reading = userReading;
+          console.log('Converter: Using user dictionary reading for "' + surfaceForm + '":', reading);
+        } else {
+          // Fall back to tokenizer reading or surface form
+          reading = token.reading || surfaceForm;
+        }
+        
         if (!/[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/.test(reading)) {
             return reading;
         }
