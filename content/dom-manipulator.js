@@ -20,11 +20,21 @@ class DOMManipulator {
     
     console.log(`Found ${textNodes.length} text nodes`);
     
-    await this.batchProcess(textNodes, async (batch) => {
+    // Pre-filter nodes to reduce work
+    const nodesToProcess = textNodes.filter(node => {
+      if (!node.parentNode) return false;
+      const text = node.textContent;
+      return this.shouldProcess(text);
+    });
+
+    console.log(`Filtered to ${nodesToProcess.length} nodes to process`);
+    
+    await this.batchProcess(nodesToProcess, async (batch) => {
       for (const node of batch) {
+        // Note: shouldProcess was already checked during pre-filtering above
+        // Keeping the parent check here as nodes can be removed during processing
         if (!node.parentNode) continue; // Node may have been removed by a previous operation
         const originalText = node.textContent;
-        if (!this.shouldProcess(originalText)) continue;
         
         try {
           const convertedText = await this.convertText(originalText, converter);
