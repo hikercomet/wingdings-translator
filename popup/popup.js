@@ -121,16 +121,21 @@ class WingdingsPopup {
   async convertText() {
     const text = document.getElementById('inputText').value.trim();
     if (!text) return;
-    // Content script will still return the original text, but we convert it to actual Wingdings chars here
-    // For popup display, we directly convert using the map.
-    const wingdingsChars = this.asciiToWingdings(text);
 
-    const resultText = document.getElementById('resultText');
-    resultText.textContent = wingdingsChars; // Set actual Wingdings characters
-    resultText.style.fontFamily = "Wingdings, 'Wingdings 2', 'Wingdings 3', Webdings, Symbola, 'Segoe UI Symbol', 'Lucida Sans Unicode', monospace !important"; // Keep font-family for visual consistency
-    resultText.style.fontSize = '28px';
-    resultText.style.lineHeight = '1.2';
-    document.getElementById('resultSection').style.display = 'block';
+    // 1. Send text to content script for proper conversion (e.g., with Kuromoji)
+    const response = await this.sendMessageToContentScript({ type: 'CONVERT_TEXT', text });
+
+    if (response && response.success) {
+      // 2. Take the result and convert it to actual Wingdings characters for copy-paste
+      const wingdingsChars = this.asciiToWingdings(response.convertedText);
+
+      const resultText = document.getElementById('resultText');
+      resultText.textContent = wingdingsChars; // Set actual Wingdings characters
+      resultText.style.fontFamily = "Wingdings, 'Wingdings 2', 'Wingdings 3', Webdings, Symbola, 'Segoe UI Symbol', 'Lucida Sans Unicode', monospace !important"; // Keep font-family for visual consistency
+      resultText.style.fontSize = '28px';
+      resultText.style.lineHeight = '1.2';
+      document.getElementById('resultSection').style.display = 'block';
+    }
   }
 
   async convertFromWingdings() {

@@ -21,8 +21,30 @@ class TextConverter {
   }
 
   async init(dicPath) {
-    return new Promise((resolve, reject) => {
-      kuromoji.builder({ dicPath }).build((err, tokenizer) => {
+    return new Promise(async (resolve, reject) => {
+      let userDic = [];
+      try {
+        const response = await chrome.runtime.sendMessage({ type: 'GET_USER_DICTIONARY' });
+        if (response && response.success && response.dictionary) {
+          userDic = Object.entries(response.dictionary).map(([kanji, data]) => {
+            // Kuromoji user dictionary format:
+            // surface_form,left_id,right_id,cost,reading
+            // We'll use default IDs and cost, but provide the correct reading.
+            const readingInKatakana = data.reading.replace(/[ぁ-ゔ]/g, s => String.fromCharCode(s.charCodeAt(0) + 0x60));
+            return `${kanji},1,1,1000,${readingInKatakana},名詞,固有名詞,*,*`;
+          });
+        }
+      } catch (e) {
+        console.error('Failed to load user dictionary:', e);
+      }
+
+      const builderOptions = { dicPath };
+      if (userDic.length > 0) {
+        builderOptions.userDic = userDic;
+        console.log('Kuromoji initialized with user dictionary of', userDic.length, 'words.');
+      }
+
+      kuromoji.builder(builderOptions).build((err, tokenizer) => {
         if (err) reject(err);
         else { this.tokenizer = tokenizer; resolve(); }
       });
