@@ -122,6 +122,11 @@ class WingdingsBackground {
           sendResponse({ success: true, statistics: stats });
           break;
 
+        case 'GET_USER_DICTIONARY':
+          const userDictionary = this.dictionaryManager.dictionary.words;
+          sendResponse({ success: true, dictionary: userDictionary });
+          break;
+
         case 'UPDATE_SETTINGS': // New case for updating settings
           console.log('Background: Received UPDATE_SETTINGS message. Settings:', message.settings);
           await this.saveSettings(message.settings);
@@ -218,6 +223,26 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 
     case 'REVERT_PAGE_REQUEST':
       await wingdingsBackground.revertPage(tab.id);
+      break;
+
+    case 'CONVERT_SELECTION_FROM_WINGDINGS':
+      if (info.selectionText) {
+        try {
+          const response = await chrome.tabs.sendMessage(tab.id, {
+            type: 'CONVERT_FROM_WINGDINGS',
+            text: info.selectionText
+          });
+          if (response && response.success) {
+            await chrome.scripting.executeScript({
+              target: { tabId: tab.id },
+              func: (text) => { alert('変換結果:\n\n' + text); },
+              args: [response.convertedText]
+            });
+          }
+        } catch (e) {
+          console.error('Error converting selection from Wingdings:', e);
+        }
+      }
       break;
 
     case 'wingdings-add-word':

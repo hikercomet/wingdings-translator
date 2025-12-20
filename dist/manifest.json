@@ -38,7 +38,8 @@
     "contextMenus",
     "tabs",
     "sidePanel",
-    "downloads"
+    "downloads",
+    "scripting"
   ],
   "host_permissions": [
     "<all_urls>"
