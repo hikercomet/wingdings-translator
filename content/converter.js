@@ -9,6 +9,8 @@ class TextConverter {
     this.wingdingsMap = wingdingsMapData.ascii_to_wingdings;
     // Lazy-load reverse map to save memory on initialization
     this._reverseWingdingsMap = null;
+    // User dictionary for custom word readings
+    this.userDictionary = {};
   }
 
   get reverseWingdingsMap() {
@@ -22,7 +24,7 @@ class TextConverter {
 
   async init(dicPath) {
     return new Promise(async (resolve, reject) => {
-      let userDic = [];
+      // Load user dictionary for custom word readings
       try {
         console.log('Converter: Requesting user dictionary from background...');
         const response = await chrome.runtime.sendMessage({ type: 'GET_USER_DICTIONARY' });
@@ -75,7 +77,18 @@ class TextConverter {
     console.log('Converter: Tokens:', tokens);
     
     const romajiParts = tokens.map(token => {
-        const reading = token.reading || token.surface_form;
+        const surfaceForm = token.surface_form;
+        
+        // Check user dictionary first for custom readings
+        if (this.userDictionary[surfaceForm]) {
+          const userEntry = this.userDictionary[surfaceForm];
+          // Convert hiragana reading to katakana for consistent processing
+          const readingInKatakana = userEntry.reading.replace(/[ぁ-ゔ]/g, s => String.fromCharCode(s.charCodeAt(0) + 0x60));
+          console.log('[Wingdings-Converter] Using user dictionary for:', surfaceForm, '->', readingInKatakana);
+          return this.convertToRomaji(readingInKatakana);
+        }
+        
+        const reading = token.reading || surfaceForm;
         if (!/[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/.test(reading)) {
             return reading;
         }
