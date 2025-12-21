@@ -4,9 +4,9 @@
   --font-wing: Wingdings, "Wingdings 2", "Wingdings 3", Webdings, Symbola, "Segoe UI Symbol", monospace !important;
 
   --bg-primary: #000000;
-  --bg-secondary: rgba(255,255,255,0.03);
-  --bg-surface: rgba(255,255,255,0.06);
-  --bg-hover: rgba(255,255,255,0.08);
+  --bg-secondary: rgba(255, 255, 255, 0.03);
+  --bg-surface: rgba(255, 255, 255, 0.06);
+  --bg-hover: rgba(255, 255, 255, 0.08);
 
   --gray-900: #111827;
   --gray-800: #1f2937;
@@ -19,17 +19,21 @@
   --gray-100: #f3f4f6;
   --gray-50: #f9fafb;
 
-  --accent-primary: #666666; /* Medium Gray */
-  --accent-secondary: #333333; /* Dark Gray */
-  --accent-focus-glow: rgba(102, 102, 102, 0.2); /* Gray glow for focus */
-  --accent-text: #CCCCCC; /* Light gray for links/accents */
+  --accent-primary: #666666;
+  /* Medium Gray */
+  --accent-secondary: #333333;
+  /* Dark Gray */
+  --accent-focus-glow: rgba(102, 102, 102, 0.2);
+  /* Gray glow for focus */
+  --accent-text: #CCCCCC;
+  /* Light gray for links/accents */
 
-  --text-primary: rgba(255,255,255,0.95);
-  --text-secondary: rgba(255,255,255,0.7);
-  --text-muted: rgba(255,255,255,0.5);
+  --text-primary: rgba(255, 255, 255, 0.95);
+  --text-secondary: rgba(255, 255, 255, 0.7);
+  --text-muted: rgba(255, 255, 255, 0.5);
 
-  --border: rgba(255,255,255,0.1);
-  --border-hover: rgba(255,255,255,0.2);
+  --border: rgba(255, 255, 255, 0.1);
+  --border-hover: rgba(255, 255, 255, 0.2);
 
   --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
@@ -86,7 +90,7 @@ body {
 .header .version {
   font-size: 13px;
   opacity: 0.8;
-  color: rgba(255,255,255,0.8);
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .language-selector {
@@ -125,7 +129,10 @@ body {
   font-size: 12px;
 }
 
-.input-section, .section, .page-actions, .dictionary-section {
+.input-section,
+.section,
+.page-actions,
+.dictionary-section {
   padding: 20px;
 }
 
@@ -167,7 +174,8 @@ textarea:focus {
 }
 
 #charCount.warning {
-  color: var(--accent-primary); /* Changed from orange */
+  color: var(--accent-primary);
+  /* Changed from orange */
   font-weight: 600;
 }
 
@@ -205,13 +213,15 @@ textarea:focus {
 
 .btn.primary {
   flex: 2;
-  background: var(--accent-primary); /* Changed from purple gradient */
+  background: var(--accent-primary);
+  /* Changed from purple gradient */
   color: white;
   box-shadow: var(--shadow-md);
 }
 
 .btn.primary:hover:not(:disabled) {
-  background: var(--accent-secondary); /* Darker gray on hover */
+  background: var(--accent-secondary);
+  /* Darker gray on hover */
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
 }
@@ -240,11 +250,13 @@ textarea:focus {
   margin: 0 0 12px 0;
   font-size: 15px;
   font-weight: 600;
-  color: var(--accent-text); /* Changed from purple */
+  color: var(--accent-text);
+  /* Changed from purple */
   letter-spacing: -0.01em;
 }
 
-#resultText, #reverseResultText {
+#resultText,
+#reverseResultText {
   background: var(--bg-surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -267,7 +279,8 @@ textarea:focus {
 .copy-btn {
   width: 100%;
   margin-top: 10px;
-  background: var(--accent-primary); /* Changed from accent-color */
+  background: var(--accent-primary);
+  /* Changed from accent-color */
   border: none;
   color: white;
   padding: 10px;
@@ -277,10 +290,13 @@ textarea:focus {
 }
 
 .copy-btn:hover {
-  background: var(--accent-secondary); /* Changed from accent-color-dark */
+  background: var(--accent-secondary);
+  /* Changed from accent-color-dark */
 }
 
-.section h3, .page-actions h3, .dictionary-section h3 {
+.section h3,
+.page-actions h3,
+.dictionary-section h3 {
   margin: 0 0 16px 0;
   font-size: 16px;
   font-weight: 600;
@@ -292,7 +308,8 @@ textarea:focus {
 
 .page-btn {
   width: 100%;
-  background: var(--accent-primary); /* Changed from blue gradient */
+  background: var(--accent-primary);
+  /* Changed from blue gradient */
   border: none;
   color: white;
   padding: 16px;
@@ -306,7 +323,8 @@ textarea:focus {
 }
 
 .page-btn:hover:not(:disabled) {
-  background: var(--accent-secondary); /* Darker gray on hover */
+  background: var(--accent-secondary);
+  /* Darker gray on hover */
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
 }
@@ -325,7 +343,7 @@ textarea:focus {
   justify-content: space-between;
   margin-bottom: 8px;
   padding-bottom: 4px;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .stat-item:last-child {
@@ -343,7 +361,8 @@ textarea:focus {
 }
 
 .stat-value.warning {
-  color: var(--accent-primary); /* Changed from orange */
+  color: var(--accent-primary);
+  /* Changed from orange */
 }
 
 .footer {
@@ -354,7 +373,8 @@ textarea:focus {
 }
 
 .links a {
-  color: var(--accent-text); /* Changed from purple */
+  color: var(--accent-text);
+  /* Changed from purple */
   text-decoration: none;
   font-size: 13px;
   font-weight: 500;
@@ -362,7 +382,8 @@ textarea:focus {
 }
 
 .links a:hover {
-  color: var(--accent-primary); /* Darker gray on hover */
+  color: var(--accent-primary);
+  /* Darker gray on hover */
   text-decoration: underline;
 }
 
@@ -390,14 +411,37 @@ hr {
   max-width: 90%;
 }
 
-.notification.success { background: var(--accent-primary); } /* Changed from green gradient */
-.notification.warning { background: var(--accent-primary); } /* Changed from orange gradient */
-.notification.error { background: var(--accent-primary); } /* Changed from red gradient */
-.notification.info { background: var(--accent-primary); } /* Changed from blue gradient */
+.notification.success {
+  background: var(--accent-primary);
+}
+
+/* Changed from green gradient */
+.notification.warning {
+  background: var(--accent-primary);
+}
+
+/* Changed from orange gradient */
+.notification.error {
+  background: var(--accent-primary);
+}
+
+/* Changed from red gradient */
+.notification.info {
+  background: var(--accent-primary);
+}
+
+/* Changed from blue gradient */
 
 @keyframes toastIn {
-  from { transform: translateX(-50%) translateY(-100%); opacity: 0; }
-  to { transform: translateX(-50%) translateY(0); opacity: 1; }
+  from {
+    transform: translateX(-50%) translateY(-100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
 }
 
 /* Scrollbar */
@@ -411,10 +455,10 @@ hr {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.3);
+  background: rgba(255, 255, 255, 0.3);
   border-radius: 2px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255,255,255,0.5);
+  background: rgba(255, 255, 255, 0.5);
 }
