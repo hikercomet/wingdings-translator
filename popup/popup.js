@@ -2,10 +2,12 @@ class WingdingsPopup {
   constructor() {
     this.wingdingsMap = {}; // Initialize map
     this.autoConvertCheckbox = document.getElementById('autoConvertCheckbox');
+    this.currentLang = 'ja'; // Default language
     this.bindEvents();
     this.loadWingdingsMap(); // Load map asynchronously
     this.getDictionaryStats();
     this.loadSettings(); // Load user settings
+    this.initLanguage(); // Initialize language
   }
 
   bindEvents() {
@@ -17,6 +19,7 @@ class WingdingsPopup {
     document.getElementById('mappingBtn').addEventListener('click', () => this.openMappingTable());
     document.getElementById('helpLink').addEventListener('click', () => chrome.tabs.create({ url: chrome.runtime.getURL('assets/help.html') }));
     document.getElementById('aboutLink').addEventListener('click', () => chrome.tabs.create({ url: chrome.runtime.getURL('assets/about.html') }));
+    document.getElementById('langBtn').addEventListener('click', () => this.toggleLanguage());
 
     const inputText = document.getElementById('inputText');
     const charCount = document.getElementById('charCount');
@@ -87,7 +90,12 @@ class WingdingsPopup {
     try {
       const settings = await chrome.storage.sync.get('wingdingsSettings');
       this.autoConvertCheckbox.checked = settings.wingdingsSettings?.autoConvert ?? false; // Default to false
+<<<<<<< Updated upstream
       console.log('Popup: Settings loaded. autoConvert:', this.autoConvertCheckbox.checked);
+=======
+      this.currentLang = settings.wingdingsSettings?.language ?? 'ja'; // Default to Japanese
+      console.log('Popup: Settings loaded. autoConvert:', this.autoConvertCheckbox.checked, 'language:', this.currentLang);
+>>>>>>> Stashed changes
     } catch (e) {
       console.error('Popup: Error loading settings:', e);
     }
@@ -95,11 +103,12 @@ class WingdingsPopup {
 
   async saveSettings() {
     const autoConvert = this.autoConvertCheckbox.checked;
-    console.log('Popup: Saving settings. autoConvert:', autoConvert);
+    const language = this.currentLang;
+    console.log('Popup: Saving settings. autoConvert:', autoConvert, 'language:', language);
     try {
-      await chrome.storage.sync.set({ wingdingsSettings: { autoConvert } });
+      await chrome.storage.sync.set({ wingdingsSettings: { autoConvert, language } });
       // Notify background script about the change
-      const response = await chrome.runtime.sendMessage({ type: 'UPDATE_SETTINGS', settings: { autoConvert } });
+      const response = await chrome.runtime.sendMessage({ type: 'UPDATE_SETTINGS', settings: { autoConvert, language } });
       console.log('Popup: UPDATE_SETTINGS message sent. Response:', response);
     } catch (e) {
       console.error('Popup: Error saving settings:', e);
@@ -158,6 +167,70 @@ class WingdingsPopup {
     } catch (e) {
       console.error("Could not send message to content script:", e);
     }
+  }
+
+  async initLanguage() {
+    await this.updateUILanguage();
+  }
+
+  async toggleLanguage() {
+    this.currentLang = this.currentLang === 'ja' ? 'en' : 'ja';
+    await this.saveSettings();
+    await this.updateUILanguage();
+  }
+
+  async updateUILanguage() {
+    const langText = document.getElementById('langText');
+    langText.textContent = this.currentLang === 'ja' ? 'JA' : 'EN';
+
+    // Update UI text based on language
+    if (this.currentLang === 'en') {
+      document.getElementById('inputText').placeholder = 'ENTER TEXT TO CONVERT HERE (MAX 666 CHARS)';
+      document.getElementById('convertBtn').textContent = 'CONVERT';
+      document.getElementById('mappingBtn').textContent = 'CHART';
+      document.querySelector('.result-box h4').textContent = 'RESULT:';
+      document.querySelector('.section h3').textContent = 'WINGDINGS → TEXT';
+      document.getElementById('wingdingsInput').placeholder = 'PASTE WINGDINGS HERE';
+      document.getElementById('convertFromBtn').textContent = 'REVERSE CONVERT';
+      document.querySelectorAll('.result-box h4')[1].textContent = 'REVERSE RESULT:';
+      document.querySelector('.page-actions h3').textContent = 'PAGE ACTIONS';
+      document.querySelector('.setting-item label').innerHTML = '<input type="checkbox" id="autoConvertCheckbox"> AUTO-CONVERT ON PAGE LOAD';
+      document.getElementById('convertPageBtn').textContent = 'CONVERT ENTIRE PAGE';
+      document.getElementById('revertPageBtn').textContent = 'REVERT';
+      document.querySelector('.dictionary-section h3').textContent = 'PERSONAL DICTIONARY';
+      document.getElementById('dictionaryBtn').textContent = 'MANAGE DICTIONARY';
+      document.getElementById('helpLink').textContent = 'HELP';
+      document.getElementById('aboutLink').textContent = 'ABOUT';
+    } else {
+      document.getElementById('inputText').placeholder = 'ここに変換したいテキストを入力してください（最大666文字）';
+      document.getElementById('convertBtn').textContent = '変換';
+      document.getElementById('mappingBtn').textContent = '対応表';
+      document.querySelector('.result-box h4').textContent = '変換結果:';
+      document.querySelector('.section h3').textContent = 'Wingdings → テキスト';
+      document.getElementById('wingdingsInput').placeholder = 'ここにWingdingsを貼り付け';
+      document.getElementById('convertFromBtn').textContent = '逆変換';
+      document.querySelectorAll('.result-box h4')[1].textContent = '逆変換結果:';
+      document.querySelector('.page-actions h3').textContent = 'ページ操作';
+      document.querySelector('.setting-item label').innerHTML = '<input type="checkbox" id="autoConvertCheckbox"> ページヨミコミジドウヘンカン';
+      document.getElementById('convertPageBtn').textContent = 'ページ全体を変換';
+      document.getElementById('revertPageBtn').textContent = '↩️ 元に戻す';
+      document.querySelector('.dictionary-section h3').textContent = 'コジンジショ';
+      document.getElementById('dictionaryBtn').textContent = 'ジショカンリ';
+      document.getElementById('helpLink').textContent = 'ヘルプ';
+      document.getElementById('aboutLink').textContent = 'アバウト';
+    }
+
+    // Re-bind the checkbox since we replaced the HTML
+    this.autoConvertCheckbox = document.getElementById('autoConvertCheckbox');
+    const settings = await chrome.storage.sync.get('wingdingsSettings');
+    this.autoConvertCheckbox.checked = settings.wingdingsSettings?.autoConvert ?? false;
+    this.autoConvertCheckbox.addEventListener('change', () => {
+      console.log('Popup: autoConvertCheckbox changed to', this.autoConvertCheckbox.checked);
+      this.saveSettings();
+    });
+
+    // Update dictionary stats with correct language
+    await this.getDictionaryStats();
   }
 }
 

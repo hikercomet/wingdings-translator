@@ -1,22 +1,26 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=300,height=550">
   <link rel="stylesheet" href="popup.css">
 </head>
+
 <body>
   <div class="header">
     <h1>Wingdings Translator</h1>
     <div class="version">v1.1.0</div>
+    <div class="language-selector">
+      <button id="langBtn" class="lang-btn" title="Switch Language">
+        <span id="langIcon">🌐</span>
+        <span id="langText">EN</span>
+      </button>
+    </div>
   </div>
 
   <div class="input-section">
-    <textarea 
-      id="inputText" 
-      placeholder="ENTER TEXT TO CONVERT HERE (MAX 666 CHARS)"
-      maxlength="666"
-    ></textarea>
+    <textarea id="inputText" placeholder="ENTER TEXT TO CONVERT HERE (MAX 666 CHARS)" maxlength="666"></textarea>
     <div class="char-counter">
       <span id="charCount">0</span> / 666
     </div>
@@ -68,11 +72,12 @@
 
   <div class="footer">
     <div class="links">
-      <a href="#" id="helpLink">HELP</a> | 
+      <a href="#" id="helpLink">HELP</a> |
       <a href="#" id="aboutLink">ABOUT</a>
     </div>
   </div>
 
   <script src="popup.js"></script>
 </body>
+
 </html>
