@@ -8,17 +8,13 @@ class DOMManipulator {
 
   processNewNodes(nodes) {
     // This function can be implemented later to handle dynamic content.
-    console.log('Processing new nodes:', nodes);
   }
 
   async convertPage(converter) {
-    console.log('DOMManipulator: convertPage called');
     if (this.isConverted) return;
     
     const startTime = performance.now();
     const textNodes = this.getTextNodes(document.body);
-    
-    console.log(`Found ${textNodes.length} text nodes`);
     
     // Pre-filter nodes to reduce work
     const nodesToProcess = textNodes.filter(node => {
@@ -26,8 +22,6 @@ class DOMManipulator {
       const text = node.textContent;
       return this.shouldProcess(text);
     });
-
-    console.log(`Filtered to ${nodesToProcess.length} nodes to process`);
     
     await this.batchProcess(nodesToProcess, async (batch) => {
       for (const node of batch) {
@@ -40,7 +34,6 @@ class DOMManipulator {
           const convertedText = await this.convertText(originalText, converter);
           
           const newNode = document.createElement('span');
-          newNode.className = 'wingdings-converted';
           newNode.style.fontFamily = "Wingdings, 'Wingdings 2', 'Wingdings 3', Webdings, Symbola, 'Segoe UI Symbol', monospace";
           newNode.textContent = convertedText;
 
@@ -58,7 +51,6 @@ class DOMManipulator {
     this.startObserving();
     
     const endTime = performance.now();
-    console.log(`Page conversion completed in ${endTime - startTime}ms`);
   }
 
   async batchProcess(items, processor, batchSize = 100) {
@@ -116,7 +108,12 @@ class DOMManipulator {
       return false;
     }
     
-    const hasJapanese = /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/.test(text);
+    // Include supplementary plane characters (surrogate pairs like 𰻞)
+    // \u3040-\u309F: Hiragana
+    // \u30A0-\u30FF: Katakana
+    // \u4E00-\u9FAF: CJK Unified Ideographs (Basic)
+    // \uD840-\uDBFF + \uDC00-\uDFFF: Supplementary Multilingual Plane (includes CJK Extension G-I)
+    const hasJapanese = /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF]|[\uD840-\uDBFF][\uDC00-\uDFFF]/.test(text);
     const hasEnglish = /[A-Za-z]/.test(text);
     
     return hasJapanese || hasEnglish;
@@ -156,7 +153,6 @@ class DOMManipulator {
 
     this.convertedNodes.clear();
     this.isConverted = false;
-    console.log('Page reverted.');
   }
 
   startObserving() {

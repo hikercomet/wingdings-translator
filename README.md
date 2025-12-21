@@ -24,7 +24,7 @@ This Chrome extension provides a unique and fun browsing experience by translati
     *   Easily add new words by right-clicking the highlighted term and providing its reading.
     *   Manage your registered words (search, edit, delete) via the side panel.
 *   **Character Map**: View a complete table of ASCII characters and their corresponding Wingdings symbols.
-*   **English UI**: The user interface is provided in English.
+*   **Language Selector**: Switch between English and Japanese (Katakana) UI modes in the popup with a single click.
 
 ### System Requirements
 *   **Chrome**: Version 116 or later (for Side Panel API support).
@@ -45,6 +45,23 @@ This Chrome extension provides a unique and fun browsing experience by translati
 *   **For quick conversions:** Click the extension icon in the toolbar to use the popup translator.
 *   **To convert a whole page:** Right-click on the page and select "Convert Entire Page to Wingdings", or use the button in the popup.
 *   **To add a word:** When you see a red highlighted word after conversion, right-click it, select "Add to Dictionary", and enter its reading (in Hiragana) when prompted.
+
+### Testing Dictionary Registration
+
+Try adding this complex character to test the dictionary feature:
+
+<div align="center">
+<h1>𰻞</h1>
+<p><strong>Reading:</strong> びゃん (byan)</p>
+<p><em>This is one of the most complex Chinese characters (58 strokes), used in "biangbiang noodles" (ビャンビャン麺)</em></p>
+</div>
+
+**Test Steps:**
+1. Open [test-dictionary.html](test-dictionary.html) in your browser
+2. Convert the page using the extension
+3. Right-click the red-highlighted 𰻞 character
+4. Select "Add to Dictionary"
+5. Enter `びゃん` as the reading
 
 ### FAQ
 
@@ -109,7 +126,7 @@ This extension was created by hikercomet.
     *   変換できない単語（未知語）を右クリックで簡単に追加できます。
     *   サイドパネルから、登録した単語の検索、編集、削除が可能です。
 *   **対応表**: Wingdingsフォントの文字と、対応するアルファベットの一覧を確認できます。
-*   **英語UI**: ユーザーインターフェースは英語で提供されます。
+*   **言語切り替え**: ポップアップ内で英語と日本語（カタカナ）のUIモードをワンクリックで切り替えられます。
 
 ### 動作要件
 *   **Chrome**: バージョン 116 以降 (サイドパネルAPI対応のため)
@@ -130,6 +147,23 @@ This extension was created by hikercomet.
 *   **短いテキストの変換**: ツールバーの拡張機能アイコンをクリックし、ポップアップの翻訳機能を使用します。
 *   **ページ全体の変換**: ページ上で右クリックし、「Convert Entire Page to Wingdings」を選択するか、ポップアップ内のボタンを使用します。
 *   **単語の追加**: 変換後に赤くハイライトされた単語を右クリックし、「Add to Dictionary」を選択、プロンプトにひらがなで読みを入力します。
+
+### 辞書登録機能のテスト
+
+以下の複雑な漢字で辞書機能をテストできます：
+
+<div align="center">
+<h1>𰻞</h1>
+<p><strong>読み方:</strong> びゃん (byan)</p>
+<p><em>中国で最も複雑な漢字の一つ（58画）、ビャンビャン麺に使われる文字です</em></p>
+</div>
+
+**テスト手順:**
+1. ブラウザで[test-dictionary.html](test-dictionary.html)を開く
+2. 拡張機能でページを変換する
+3. 赤くハイライトされた𰻞の文字を右クリック
+4. 「Add to Dictionary」を選択
+5. 読み仮名として`びゃん`を入力
 
 ### FAQ（よくある質問）
 

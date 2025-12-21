@@ -129,6 +129,11 @@ class WingdingsPopup {
     const text = document.getElementById('inputText').value.trim();
     if (!text) return;
 
+    // Check for 666 and trigger glitch effect
+    if (text.includes('666')) {
+      await this.triggerGlitchEffect();
+    }
+
     // 1. Send text to content script for proper conversion (e.g., with Kuromoji)
     const response = await this.sendMessageToContentScript({ type: 'CONVERT_TEXT', text });
 
@@ -164,6 +169,35 @@ class WingdingsPopup {
       }
     } catch (e) {
       console.error("Could not send message to content script:", e);
+    }
+  }
+
+  async triggerGlitchEffect() {
+    const overlay = document.createElement('div');
+    overlay.className = 'glitch-overlay';
+    document.body.appendChild(overlay);
+
+    // Play noise sound
+    this.playNoiseSound();
+
+    // Trigger animation
+    setTimeout(() => overlay.classList.add('active'), 10);
+
+    // Remove after animation
+    setTimeout(() => {
+      overlay.remove();
+    }, 800);
+  }
+
+  playNoiseSound() {
+    try {
+      const audio = new Audio(chrome.runtime.getURL('assets/sounds/noise.mp3'));
+      audio.volume = 0.3;
+      audio.play().catch(err => {
+        console.log('Could not play glitch sound:', err);
+      });
+    } catch (e) {
+      console.log('Error loading glitch sound:', e);
     }
   }
 

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>辞書登録テスト - Dictionary Test</title>
+  <style>
+    :root {
+      --bg-primary: #000000;
+      --bg-secondary: rgba(255, 255, 255, 0.03);
+      --text-primary: rgba(255, 255, 255, 0.95);
+      --text-secondary: rgba(255, 255, 255, 0.7);
+      --border: rgba(255, 255, 255, 0.1);
+      --accent: #666666;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      padding: 40px;
+      line-height: 1.8;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 60px;
+      padding-bottom: 30px;
+      border-bottom: 2px solid var(--border);
+    }
+
+    h1 {
+      font-size: 36px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      letter-spacing: -0.02em;
+    }
+
+    .subtitle {
+      font-size: 18px;
+      color: var(--text-secondary);
+    }
+
+    .test-section {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 40px;
+      margin-bottom: 40px;
+    }
+
+    .test-section h2 {
+      font-size: 24px;
+      margin-bottom: 30px;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .character-display {
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 60px;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .large-char {
+      font-size: 120px;
+      line-height: 1;
+      font-weight: 400;
+      margin-bottom: 20px;
+      user-select: text;
+    }
+
+    .char-info {
+      font-size: 16px;
+      color: var(--text-secondary);
+      margin-top: 20px;
+    }
+
+    .reading {
+      font-size: 28px;
+      color: var(--text-primary);
+      margin: 10px 0;
+      font-weight: 500;
+    }
+
+    .description {
+      font-size: 16px;
+      line-height: 1.8;
+      color: var(--text-secondary);
+      margin-top: 20px;
+    }
+
+    .instructions {
+      background: rgba(102, 102, 102, 0.1);
+      border-left: 4px solid var(--accent);
+      padding: 20px 24px;
+      margin-top: 30px;
+      border-radius: 8px;
+    }
+
+    .instructions h3 {
+      font-size: 18px;
+      margin-bottom: 12px;
+      color: var(--accent);
+    }
+
+    .instructions ol {
+      margin-left: 20px;
+      color: var(--text-secondary);
+    }
+
+    .instructions li {
+      margin-bottom: 8px;
+    }
+
+    code {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-family: 'SF Mono', Monaco, Consolas, monospace;
+      font-size: 14px;
+      color: var(--text-primary);
+    }
+
+    .example-text {
+      margin-top: 40px;
+      padding: 30px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .example-text h3 {
+      font-size: 20px;
+      margin-bottom: 20px;
+      color: var(--accent);
+    }
+
+    .example-text p {
+      font-size: 24px;
+      line-height: 1.8;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <header>
+      <h1>辞書登録機能テスト</h1>
+      <p class="subtitle">Dictionary Registration Test Page</p>
+    </header>
+
+    <div class="test-section">
+      <h2>テスト用文字 (Test Character)</h2>
+
+      <div class="character-display">
+        <div class="large-char">𰻞</div>
+        <div class="char-info">
+          <div class="reading">びゃん (byan)</div>
+          <div>Unicode: U+30EDE</div>
+        </div>
+      </div>
+
+      <div class="description">
+        <p>この文字「𰻞」は、中国陝西省の名物料理「ビャンビャン麺」の「ビャン」を表す漢字です。画数が非常に多く（58画）、最も複雑な漢字の一つとして知られています。</p>
+        <br>
+        <p>This character "𰻞" represents "byan" from the famous Shaanxi noodle dish "biangbiang noodles". With 58
+          strokes, it is one of the most complex Chinese characters.</p>
+      </div>
+
+      <div class="instructions">
+        <h3>テスト手順 (Test Instructions)</h3>
+        <ol>
+          <li>拡張機能のポップアップを開き、「ページ全体を変換」をクリックします</li>
+          <li>赤くハイライトされた「𰻞」の文字を右クリックします</li>
+          <li>「Add to Dictionary」を選択します</li>
+          <li>読み仮名入力プロンプトで <code>びゃん</code> と入力します</li>
+          <li>サイドパネルの辞書管理で登録が確認できます</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="example-text">
+      <h3>サンプルテキスト (Sample Text)</h3>
+      <p>
+        𰻞𰻞麺は陝西省の伝統料理です。この𰻞という文字は非常に複雑で、書くのが難しいことで知られています。
+      </p>
+      <p style="margin-top: 20px; font-size: 18px; color: var(--text-secondary);">
+        Biangbiang noodles are a traditional dish from Shaanxi Province. The character 𰻞 is extremely complex and known
+        for being difficult to write.
+      </p>
+    </div>
+  </div>
+</body>
+
+</html>

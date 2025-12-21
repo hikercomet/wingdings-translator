@@ -19,7 +19,6 @@ class MainContentScript {
       //   await this.converter.init(chrome.runtime.getURL('data/dict/'));
       // }
       // this.domManipulator.convertPage(this.converter); // Removed auto-conversion
-      console.log('Wingdings-Converter: Content script initialized. Awaiting commands.');
     } catch (e) {
       console.error('Wingdings-Converter: Content script initialization failed.', e);
     }
@@ -40,6 +39,14 @@ class MainContentScript {
 
   async handleMessage(message, sender) {
     switch (message.type) {
+      case 'DICTIONARY_UPDATED':
+        // Reload user dictionary when notified of updates
+        console.log('ContentScript: Received DICTIONARY_UPDATED notification');
+        if (this.converter) {
+          await this.converter.loadUserDictionary();
+          console.log('ContentScript: User dictionary reloaded');
+        }
+        return { success: true };
       case 'PAGE_LOADED': // This message is now used for conditional auto-conversion
       case 'CONVERT_PAGE_REQUEST':
         await this.ensureConverterInitialized();

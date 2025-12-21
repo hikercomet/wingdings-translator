@@ -25,27 +25,38 @@ class TextConverter {
     return this._reverseWingdingsMap;
   }
 
+  // Helper method to count actual characters (handles surrogate pairs correctly)
+  getCharacterCount(text) {
+    return Array.from(text).length;
+  }
+
+  async loadUserDictionary() {
+    // Load user dictionary for custom word readings
+    try {
+      console.log('Converter: Requesting user dictionary from background...');
+      const response = await chrome.runtime.sendMessage({ type: 'GET_USER_DICTIONARY' });
+      if (response && response.success && response.dictionary) {
+        console.log('Converter: User dictionary received from background:', response.dictionary);
+        // Store user dictionary as a Map for O(1) lookup during conversion
+        this.userDictionary.clear();
+        Object.entries(response.dictionary).forEach(([kanji, data]) => {
+          // Store reading in katakana for consistent processing
+          const readingInKatakana = data.reading.replace(/[ぁ-ゔ]/g, s => String.fromCharCode(s.charCodeAt(0) + 0x60));
+          console.log('Converter: Adding to dictionary - Key:', kanji, 'Length:', kanji.length, 'Chars:', Array.from(kanji).length, 'Value:', readingInKatakana);
+          this.userDictionary.set(kanji, readingInKatakana);
+        });
+        console.log('Converter: User dictionary loaded with', this.userDictionary.size, 'entries.');
+        console.log('Converter: Dictionary contents:', Array.from(this.userDictionary.entries()));
+      }
+    } catch (e) {
+      console.error('Converter: Failed to load user dictionary:', e);
+    }
+  }
+
   async init(dicPath) {
     return new Promise(async (resolve, reject) => {
 
-      // Load user dictionary for custom word readings
-      try {
-        console.log('Converter: Requesting user dictionary from background...');
-        const response = await chrome.runtime.sendMessage({ type: 'GET_USER_DICTIONARY' });
-        if (response && response.success && response.dictionary) {
-          console.log('Converter: User dictionary received from background:', response.dictionary);
-          // Store user dictionary as a Map for O(1) lookup during conversion
-          this.userDictionary.clear();
-          Object.entries(response.dictionary).forEach(([kanji, data]) => {
-            // Store reading in katakana for consistent processing
-            const readingInKatakana = data.reading.replace(/[ぁ-ゔ]/g, s => String.fromCharCode(s.charCodeAt(0) + 0x60));
-            this.userDictionary.set(kanji, readingInKatakana);
-          });
-          console.log('Converter: User dictionary loaded with', this.userDictionary.size, 'entries.');
-        }
-      } catch (e) {
-        console.error('Converter: Failed to load user dictionary:', e);
-      }
+      await this.loadUserDictionary();
 
       const builderOptions = { dicPath };
 
@@ -72,34 +83,57 @@ class TextConverter {
       console.error('Converter: Tokenizer not initialized before convert call.');
       return text;
     }
-    console.log('Converter: Tokenizing text:', text);
+    // Reload user dictionary before conversion to ensure latest data
+    await this.loadUserDictionary();
     const tokens = this.tokenizer.tokenize(text);
-    console.log('Converter: Tokens:', tokens);
     
     // Check if tokenization covered all characters (kuromoji bug with supplementary plane)
-    const tokenizedLength = tokens.reduce((sum, token) => sum + token.surface_form.length, 0);
-    if (tokenizedLength < text.length) {
-      console.log('Converter: Tokenization incomplete, manually processing remaining text');
-      // Find the untokenized part and tokenize it separately
-      const lastTokenEnd = this.calculateLastTokenEndPosition(tokens);
-      const remainingText = text.slice(lastTokenEnd);
-      if (remainingText) {
-        console.log('Converter: Tokenizing remaining text:', remainingText);
-        // Tokenize the remaining text to get proper readings
-        const remainingTokens = this.tokenizer.tokenize(remainingText);
-        if (remainingTokens.length > 0) {
-          console.log('Converter: Adding', remainingTokens.length, 'remaining tokens');
-          tokens.push(...remainingTokens);
-        } else {
-          // If still can't tokenize, add as pseudo-token
-          console.log('Converter: Adding remaining text as pseudo-token');
+    const tokenizedLength = tokens.reduce((sum, token) => sum + this.getCharacterCount(token.surface_form), 0);
+    const actualTextLength = this.getCharacterCount(text);
+    if (tokenizedLength < actualTextLength) {
+      // Find the untokenized part and process character by character
+      const textChars = Array.from(text);
+      const tokenizedChars = new Set();
+      
+      // Mark all tokenized positions
+      for (const token of tokens) {
+        const startPos = token.word_position - 1;
+        const tokenChars = Array.from(token.surface_form);
+        for (let i = 0; i < tokenChars.length; i++) {
+          tokenizedChars.add(startPos + i);
+        }
+      }
+      
+      // Find untokenized characters
+      let currentUntokenized = '';
+      let startPos = 0;
+      for (let i = 0; i < textChars.length; i++) {
+        if (!tokenizedChars.has(i)) {
+          if (currentUntokenized === '') {
+            startPos = i;
+          }
+          currentUntokenized += textChars[i];
+        } else if (currentUntokenized) {
+          // Add accumulated untokenized characters as pseudo-token
+          console.log('Converter: Adding untokenized text as pseudo-token:', currentUntokenized);
           tokens.push({
-            surface_form: remainingText,
+            surface_form: currentUntokenized,
             reading: null,
             pos: POS_SYMBOL,
-            word_position: lastTokenEnd + 1
+            word_position: startPos + 1
           });
+          currentUntokenized = '';
         }
+      }
+      // Add remaining untokenized characters
+      if (currentUntokenized) {
+        console.log('Converter: Adding final untokenized text as pseudo-token:', currentUntokenized);
+        tokens.push({
+          surface_form: currentUntokenized,
+          reading: null,
+          pos: POS_SYMBOL,
+          word_position: startPos + 1
+        });
       }
     }
     
@@ -112,12 +146,11 @@ class TextConverter {
         if (userReading) {
           // Use custom reading from user dictionary
           reading = userReading;
-          console.log('Converter: Using user dictionary reading for "' + surfaceForm + '":', reading);
         } else if (!token.reading && this.userDictionary.size > 0) {
           // If no reading provided by tokenizer, try character-by-character lookup
           reading = this.getCharacterByCharacterReading(surfaceForm);
           if (reading !== surfaceForm) {
-            console.log('Converter: Using character-by-character reading for "' + surfaceForm + '":', reading);
+            // Successfully found some character readings
           } else {
             // Fall back to surface form if no character readings found
             reading = surfaceForm;
@@ -166,7 +199,7 @@ class TextConverter {
     }
     const lastToken = tokens[tokens.length - 1];
     const tokenStartPosition = lastToken.word_position - 1; // Convert to 0-indexed
-    const tokenLength = lastToken.surface_form.length;
+    const tokenLength = this.getCharacterCount(lastToken.surface_form);
     return tokenStartPosition + tokenLength;
   }
 
@@ -183,13 +216,10 @@ class TextConverter {
   }
 
   convertToRomaji(text) {
-      console.log('[Wingdings-Converter] convertToRomaji input:', text);
       // Convert hiragana to katakana for consistent processing
       const katakanaText = text.replace(/[ぁ-ゔ]/g, s => String.fromCharCode(s.charCodeAt(0) + 0x60));
       // Use shared, optimized conversion function
-      const result = sharedConvertToRomaji(katakanaText);
-      console.log('[Wingdings-Converter] convertToRomaji output:', result);
-      return result;
+      return sharedConvertToRomaji(katakanaText);
   }
 }
 

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>サロゲートペア文字テスト - 𰻞</title>
+    <style>
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            padding: 40px;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.8;
+        }
+
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 2px solid #333;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+
+        h2 {
+            color: #666;
+            margin-top: 0;
+        }
+
+        .char-info {
+            background: #fff;
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .large-text {
+            font-size: 48px;
+            text-align: center;
+            margin: 20px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+        }
+
+        code {
+            background: #e8e8e8;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .info {
+            background: #e3f2fd;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+            border-left: 4px solid #2196F3;
+        }
+
+        .wingdings-converted {
+            background-color: rgba(76, 175, 80, 0.2) !important;
+            border-bottom: 2px solid #4CAF50;
+            padding: 2px 4px;
+        }
+
+        .debug-info {
+            background: #fff3cd;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 3px;
+            font-size: 12px;
+            color: #856404;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>サロゲートペア文字テスト</h1>
+
+    <div class="info">
+        <strong>📋 テスト手順：</strong>
+        <ol>
+            <li>この拡張機能のSidePanelを開く</li>
+            <li>「𰻞」を「びゃん」と登録する</li>
+            <li>このページでコンテキストメニューから「ページゼンタイヲWINGDINGSニヘンカン」を選択</li>
+            <li>Chrome DevToolsのConsoleタブを開いてログを確認</li>
+            <li>「𰻞」が正しく「BYAN」に変換されているか確認</li>
+        </ol>
+    </div>
+
+    <div class="test-section">
+        <h2>テスト1: 単一文字</h2>
+        <div class="large-text">𰻞</div>
+        <div class="char-info">
+            <strong>文字：</strong> 𰻞<br>
+            <strong>期待される読み：</strong> びゃん<br>
+            <strong>期待されるローマ字：</strong> BYAN<br>
+            <strong>Unicode：</strong> U+30EDE (CJK統合漢字拡張G)
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>テスト2: 文中での使用</h2>
+        <p>この文字は𰻞という字です。</p>
+        <p>𰻞の読み方は「びゃん」です。</p>
+        <p>複数回：𰻞𰻞𰻞</p>
+    </div>
+
+    <div class="test-section">
+        <h2>テスト3: 他の文字と混在</h2>
+        <p>今日は𰻞麺を食べました。美味しい𰻞麺でした。</p>
+        <p>𰻞と漢字と平仮名とカタカナが混在している文章です。</p>
+    </div>
+
+    <div class="test-section">
+        <h2>テスト4: 文字情報（JavaScript）</h2>
+        <div class="char-info">
+            <script>
+                const char = '𰻞';
+                document.write('<strong>文字：</strong> ' + char + '<br>');
+                document.write('<strong>String.length：</strong> ' + char.length + ' (サロゲートペアなので2)<br>');
+                document.write('<strong>Array.from(char).length：</strong> ' + Array.from(char).length + ' (実際の文字数は1)<br>');
+                document.write('<strong>Codepoint：</strong> U+' + char.codePointAt(0).toString(16).toUpperCase() + '<br>');
+                document.write('<strong>Surrogate Pair：</strong> U+' + char.charCodeAt(0).toString(16).toUpperCase() + ' + U+' + char.charCodeAt(1).toString(16).toUpperCase());
+            </script>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>テスト5: その他のサロゲートペア文字</h2>
+        <div class="char-info">
+            <p>絵文字: 😀 🎉 🚀 (これらもサロゲートペア)</p>
+            <p>その他の漢字: 𠮷 𡈽 𠀋</p>
+        </div>
+    </div>
+
+    <div class="info">
+        <strong>🔍 確認すべきコンソールログ：</strong>
+        <ul>
+            <li><code>DictionaryManager: Added/Updated word: 𰻞 with reading: びゃん</code></li>
+            <li><code>Converter: Adding to dictionary - Key: 𰻞 Length: 2 Chars: 1</code></li>
+            <li><code>Converter: Processing token: 𰻞</code></li>
+            <li><code>Converter: User dictionary lookup for "𰻞": ビャン</code></li>
+        </ul>
+    </div>
+
+    <script>
+        // Console output for debugging
+        console.log('=== サロゲートペア文字テストページ ===');
+        console.log('テスト文字: 𰻞');
+        console.log('String.length:', '𰻞'.length);
+        console.log('Array.from().length:', Array.from('𰻞').length);
+        console.log('Codepoint:', '0x' + '𰻞'.codePointAt(0).toString(16));
+
+        // Test character extraction
+        const testText = 'これは𰻞という字です';
+        console.log('テスト文:', testText);
+        console.log('文字配列:', Array.from(testText));
+        console.log('各文字:', Array.from(testText).map((c, i) => `[${i}] ${c} (length: ${c.length})`));
+    </script>
+</body>
+
+</html>

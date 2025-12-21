@@ -99,6 +99,8 @@ class WingdingsBackground {
             message.reading,
             message.romaji
           );
+          // Notify all content scripts to reload dictionary
+          this.notifyDictionaryUpdate();
           sendResponse({ success: true, data: result });
           break;
 
@@ -114,6 +116,10 @@ class WingdingsBackground {
 
         case 'REMOVE_FROM_DICTIONARY':
           const removeResult = await this.dictionaryManager.removeWord(message.kanji);
+          // Notify all content scripts to reload dictionary
+          if (removeResult) {
+            this.notifyDictionaryUpdate();
+          }
           sendResponse({ success: removeResult });
           break;
 
@@ -204,10 +210,33 @@ class WingdingsBackground {
   playSound(soundId = '1') {
     // 効果音再生（Audio APIを使用）
     const audio = new Audio(chrome.runtime.getURL(`assets/sounds/${soundId}.mp3`));
-    audio.volume = 0.3;
+    audio.volume = 0.8;
     audio.play().catch(error => {
       console.log('Sound play failed:', error);
     });
+  }
+
+  async notifyDictionaryUpdate() {
+    // Notify all tabs about dictionary update
+    console.log('Background: Notifying all tabs about dictionary update...');
+    try {
+      const tabs = await chrome.tabs.query({});
+      for (const tab of tabs) {
+        if (tab.url && !tab.url.startsWith('chrome://')) {
+          try {
+            await chrome.tabs.sendMessage(tab.id, {
+              type: 'DICTIONARY_UPDATED'
+            });
+            console.log('Background: Notified tab', tab.id);
+          } catch (error) {
+            // Content script not loaded on this tab, skip
+            console.log('Background: Could not notify tab', tab.id, '- content script not ready');
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Background: Error notifying tabs:', error);
+    }
   }
 }
 
