@@ -92,6 +92,8 @@ class WingdingsPopup {
       this.autoConvertCheckbox.checked = settings.wingdingsSettings?.autoConvert ?? false; // Default to false
       this.currentLang = settings.wingdingsSettings?.language ?? 'ja'; // Default to Japanese
       console.log('Popup: Settings loaded. autoConvert:', this.autoConvertCheckbox.checked, 'language:', this.currentLang);
+      console.log('Popup: Settings loaded. autoConvert:', this.autoConvertCheckbox.checked);
+
     } catch (e) {
       console.error('Popup: Error loading settings:', e);
     }
