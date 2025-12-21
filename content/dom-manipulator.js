@@ -194,35 +194,8 @@ class DOMManipulator {
   }
 
   showProgress(current, total) {
-    const progress = Math.round((current / total) * 100);
-    
-    let progressBar = document.getElementById('wingdings-progress');
-    if (!progressBar) {
-      progressBar = document.createElement('div');
-      progressBar.id = 'wingdings-progress';
-      progressBar.style.cssText = `
-        position: fixed !important;
-        top: 10px !important;
-        right: 10px !important;
-        background: rgba(0, 0, 0, 0.8) !important;
-        color: white !important;
-        padding: 10px !important;
-        border-radius: 5px !important;
-        z-index: 999999 !important;
-        font-family: monospace !important;
-      `;
-      document.body.appendChild(progressBar);
-    }
-    
-
-    
-    if (progress >= 100) {
-      setTimeout(() => {
-        if (progressBar.parentNode) {
-          progressBar.parentNode.removeChild(progressBar);
-        }
-      }, 2000);
-    }
+    // Progress overlay disabled per request (no on-page "Converting..." display)
+    return;
   }
 }
 

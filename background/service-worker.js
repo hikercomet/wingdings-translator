@@ -5,7 +5,7 @@ class WingdingsBackground {
   constructor() {
     this.dictionaryManager = new DictionaryManager();
     this.settings = {
-      autoConvert: true, // Default to true
+      autoConvert: false, // Default to false - user must enable auto-convert
     };
     this.init();
   }
@@ -22,7 +22,7 @@ class WingdingsBackground {
     console.log('Background: Loading settings...');
     try {
       const storedSettings = await chrome.storage.sync.get('wingdingsSettings');
-      this.settings.autoConvert = storedSettings.wingdingsSettings?.autoConvert ?? true;
+      this.settings.autoConvert = storedSettings.wingdingsSettings?.autoConvert ?? false;
       console.log('Background: Settings loaded. autoConvert:', this.settings.autoConvert);
     } catch (e) {
       console.error('Background: Error loading settings:', e);
