@@ -86,7 +86,7 @@ class WingdingsPopup {
     console.log('Popup: Loading settings...');
     try {
       const settings = await chrome.storage.sync.get('wingdingsSettings');
-      this.autoConvertCheckbox.checked = settings.wingdingsSettings?.autoConvert ?? true; // Default to true
+      this.autoConvertCheckbox.checked = settings.wingdingsSettings?.autoConvert ?? false; // Default to false
       console.log('Popup: Settings loaded. autoConvert:', this.autoConvertCheckbox.checked);
     } catch (e) {
       console.error('Popup: Error loading settings:', e);
