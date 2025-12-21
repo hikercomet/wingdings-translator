@@ -120,10 +120,6 @@ body {
   transform: translateY(-1px);
 }
 
-#langIcon {
-  font-size: 14px;
-}
-
 #langText {
   font-family: var(--font-mono);
   font-size: 12px;

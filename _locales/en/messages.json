@@ -27,10 +27,7 @@
     "message": "Result:",
     "description": "Label for the conversion result area."
   },
-  "popupReverseTitle": {
-    "message": "Wingdings → Text",
-    "description": "Title for the reverse conversion section."
-  },
+
   "popupReversePlaceholder": {
     "message": "Paste Wingdings here",
     "description": "Placeholder for the reverse conversion textarea."

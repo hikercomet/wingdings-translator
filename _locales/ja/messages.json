@@ -27,10 +27,6 @@
     "message": "変換結果:",
     "description": "Label for the conversion result area."
   },
-  "popupReverseTitle": {
-    "message": "Wingdings → テキスト",
-    "description": "Title for the reverse conversion section."
-  },
   "popupReversePlaceholder": {
     "message": "ここにWingdingsを貼り付け",
     "description": "Placeholder for the reverse conversion textarea."

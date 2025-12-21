@@ -200,22 +200,22 @@ class WingdingsPopup {
       document.getElementById('helpLink').textContent = 'HELP';
       document.getElementById('aboutLink').textContent = 'ABOUT';
     } else {
-      document.getElementById('inputText').placeholder = 'ここに変換したいテキストを入力してください（最大666文字）';
-      document.getElementById('convertBtn').textContent = '変換';
-      document.getElementById('mappingBtn').textContent = '対応表';
-      document.querySelector('.result-box h4').textContent = '変換結果:';
-      document.querySelector('.section h3').textContent = 'Wingdings → テキスト';
-      document.getElementById('wingdingsInput').placeholder = 'ここにWingdingsを貼り付け';
-      document.getElementById('convertFromBtn').textContent = '逆変換';
-      document.querySelectorAll('.result-box h4')[1].textContent = '逆変換結果:';
-      document.querySelector('.page-actions h3').textContent = 'ページ操作';
-      document.querySelector('.setting-item label').innerHTML = '<input type="checkbox" id="autoConvertCheckbox"> ページヨミコミジドウヘンカン';
-      document.getElementById('convertPageBtn').textContent = 'ページ全体を変換';
-      document.getElementById('revertPageBtn').textContent = '↩️ 元に戻す';
-      document.querySelector('.dictionary-section h3').textContent = 'コジンジショ';
-      document.getElementById('dictionaryBtn').textContent = 'ジショカンリ';
-      document.getElementById('helpLink').textContent = 'ヘルプ';
-      document.getElementById('aboutLink').textContent = 'アバウト';
+      document.getElementById('inputText').placeholder = this.toKatakana('ここに変換したいテキストを入力してください（最大666文字）');
+      document.getElementById('convertBtn').textContent = this.toKatakana('変換');
+      document.getElementById('mappingBtn').textContent = this.toKatakana('対応表');
+      document.querySelector('.result-box h4').textContent = this.toKatakana('変換結果:');
+      document.querySelector('.section h3').textContent = 'Wingdings → ' + this.toKatakana('テキスト');
+      document.getElementById('wingdingsInput').placeholder = this.toKatakana('ここにWingdingsを貼り付け');
+      document.getElementById('convertFromBtn').textContent = this.toKatakana('逆変換');
+      document.querySelectorAll('.result-box h4')[1].textContent = this.toKatakana('逆変換結果:');
+      document.querySelector('.page-actions h3').textContent = this.toKatakana('ページ操作');
+      document.querySelector('.setting-item label').innerHTML = '<input type="checkbox" id="autoConvertCheckbox"> ' + this.toKatakana('ページヨミコミジドウヘンカン');
+      document.getElementById('convertPageBtn').textContent = this.toKatakana('ページ全体を変換');
+      document.getElementById('revertPageBtn').textContent = this.toKatakana('元に戻す');
+      document.querySelector('.dictionary-section h3').textContent = this.toKatakana('コジンジショ');
+      document.getElementById('dictionaryBtn').textContent = this.toKatakana('ジショカンリ');
+      document.getElementById('helpLink').textContent = this.toKatakana('ヘルプ');
+      document.getElementById('aboutLink').textContent = this.toKatakana('アバウト');
     }
 
     // Re-bind the checkbox since we replaced the HTML
