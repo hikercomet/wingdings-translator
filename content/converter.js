@@ -2,6 +2,9 @@ const kuromoji = require('kuromoji');
 const wingdingsMapData = require('../data/wingdings-map.json');
 const { convertToRomaji: sharedConvertToRomaji } = require('../shared/romaji-converter.js');
 
+// Constants
+const POS_SYMBOL = '記号'; // Part-of-speech marker for symbols/unknown characters
+
 class TextConverter {
   constructor() {
     this.tokenizer = null; // Renamed from kuromoji for clarity
@@ -73,6 +76,33 @@ class TextConverter {
     const tokens = this.tokenizer.tokenize(text);
     console.log('Converter: Tokens:', tokens);
     
+    // Check if tokenization covered all characters (kuromoji bug with supplementary plane)
+    const tokenizedLength = tokens.reduce((sum, token) => sum + token.surface_form.length, 0);
+    if (tokenizedLength < text.length) {
+      console.log('Converter: Tokenization incomplete, manually processing remaining text');
+      // Find the untokenized part and tokenize it separately
+      const lastTokenEnd = this.calculateLastTokenEndPosition(tokens);
+      const remainingText = text.slice(lastTokenEnd);
+      if (remainingText) {
+        console.log('Converter: Tokenizing remaining text:', remainingText);
+        // Tokenize the remaining text to get proper readings
+        const remainingTokens = this.tokenizer.tokenize(remainingText);
+        if (remainingTokens.length > 0) {
+          console.log('Converter: Adding', remainingTokens.length, 'remaining tokens');
+          tokens.push(...remainingTokens);
+        } else {
+          // If still can't tokenize, add as pseudo-token
+          console.log('Converter: Adding remaining text as pseudo-token');
+          tokens.push({
+            surface_form: remainingText,
+            reading: null,
+            pos: POS_SYMBOL,
+            word_position: lastTokenEnd + 1
+          });
+        }
+      }
+    }
+    
     const romajiParts = tokens.map(token => {
         // Check user dictionary first for custom readings
         const surfaceForm = token.surface_form;
@@ -83,6 +113,15 @@ class TextConverter {
           // Use custom reading from user dictionary
           reading = userReading;
           console.log('Converter: Using user dictionary reading for "' + surfaceForm + '":', reading);
+        } else if (!token.reading && this.userDictionary.size > 0) {
+          // If no reading provided by tokenizer, try character-by-character lookup
+          reading = this.getCharacterByCharacterReading(surfaceForm);
+          if (reading !== surfaceForm) {
+            console.log('Converter: Using character-by-character reading for "' + surfaceForm + '":', reading);
+          } else {
+            // Fall back to surface form if no character readings found
+            reading = surfaceForm;
+          }
         } else {
           // Fall back to tokenizer reading or surface form
           reading = token.reading || surfaceForm;
@@ -96,6 +135,39 @@ class TextConverter {
 
     const romaji = romajiParts.join('');
     return this.convertTextToWingdings(romaji);
+  }
+
+  getCharacterByCharacterReading(text) {
+    // Try to construct reading from individual characters in user dictionary
+    let result = '';
+    let foundAny = false;
+    
+    for (const char of text) {
+      const charReading = this.userDictionary.get(char);
+      if (charReading) {
+        result += charReading;
+        foundAny = true;
+      } else {
+        // Check if character itself is kana/kanji and needs conversion
+        // For unknown characters, keep them as-is
+        result += char;
+      }
+    }
+    
+    // Only return the constructed reading if we found at least one character
+    return foundAny ? result : text;
+  }
+
+  calculateLastTokenEndPosition(tokens) {
+    // Calculate the end position of the last token
+    // Note: word_position in kuromoji is 1-indexed, not 0-indexed
+    if (tokens.length === 0) {
+      return 0;
+    }
+    const lastToken = tokens[tokens.length - 1];
+    const tokenStartPosition = lastToken.word_position - 1; // Convert to 0-indexed
+    const tokenLength = lastToken.surface_form.length;
+    return tokenStartPosition + tokenLength;
   }
 
   convertTextToWingdings(text) {
