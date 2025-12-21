@@ -190,8 +190,9 @@ describe('DictionaryManager Unicode Support', () => {
   });
 
   describe('Japanese Problem Statement Test', () => {
-    // Test: "辞書機能が機能するかを𰻞𰻞麺という通常変換できない文字を使って試す"
-    // Translation: "Test if the dictionary function works using characters that cannot be normally converted like 𰻞𰻞麺"
+    // Original problem: "辞書機能が機能するかを𰻞𰻞麺という通常変換できない文字を使って試す"
+    // Translation: "Test if the dictionary function works using rare Unicode characters like 𰻞𰻞麺 
+    // that are not handled by standard morphological analyzers"
     test('should handle problem statement: dictionary function with rare characters 𰻞𰻞麺', async () => {
       // Test the exact scenario from the problem statement
       const testWord = '𰻞𰻞麺';

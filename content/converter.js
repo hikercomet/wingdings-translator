@@ -2,6 +2,9 @@ const kuromoji = require('kuromoji');
 const wingdingsMapData = require('../data/wingdings-map.json');
 const { convertToRomaji: sharedConvertToRomaji } = require('../shared/romaji-converter.js');
 
+// Constants
+const POS_SYMBOL = '記号'; // Part-of-speech marker for symbols/unknown characters
+
 class TextConverter {
   constructor() {
     this.tokenizer = null; // Renamed from kuromoji for clarity
@@ -78,10 +81,7 @@ class TextConverter {
     if (tokenizedLength < text.length) {
       console.log('Converter: Tokenization incomplete, manually processing remaining text');
       // Find the untokenized part and tokenize it separately
-      // Note: word_position in kuromoji is 1-indexed
-      const lastTokenEnd = tokens.length > 0 
-        ? (tokens[tokens.length - 1].word_position - 1) + tokens[tokens.length - 1].surface_form.length 
-        : 0;
+      const lastTokenEnd = this.calculateLastTokenEndPosition(tokens);
       const remainingText = text.slice(lastTokenEnd);
       if (remainingText) {
         console.log('Converter: Tokenizing remaining text:', remainingText);
@@ -96,7 +96,7 @@ class TextConverter {
           tokens.push({
             surface_form: remainingText,
             reading: null,
-            pos: '記号',
+            pos: POS_SYMBOL,
             word_position: lastTokenEnd + 1
           });
         }
@@ -156,6 +156,18 @@ class TextConverter {
     
     // Only return the constructed reading if we found at least one character
     return foundAny ? result : text;
+  }
+
+  calculateLastTokenEndPosition(tokens) {
+    // Calculate the end position of the last token
+    // Note: word_position in kuromoji is 1-indexed, not 0-indexed
+    if (tokens.length === 0) {
+      return 0;
+    }
+    const lastToken = tokens[tokens.length - 1];
+    const tokenStartPosition = lastToken.word_position - 1; // Convert to 0-indexed
+    const tokenLength = lastToken.surface_form.length;
+    return tokenStartPosition + tokenLength;
   }
 
   convertTextToWingdings(text) {
