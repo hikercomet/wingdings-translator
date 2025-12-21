@@ -26,3 +26,10 @@ node_modules
 dist/
 .claude/
 *.zip
+
+# Worktrees
+*.worktrees/
+
+# Unused/debug files (if recreated)
+performance-monitor.js
+debug-tools.js
