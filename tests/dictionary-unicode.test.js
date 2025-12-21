@@ -190,7 +190,9 @@ describe('DictionaryManager Unicode Support', () => {
   });
 
   describe('Japanese Problem Statement Test', () => {
-    test('辞書機能が機能するかを𰻞𰻞麺という通常変換できない文字を使って試す', async () => {
+    // Test: "辞書機能が機能するかを𰻞𰻞麺という通常変換できない文字を使って試す"
+    // Translation: "Test if the dictionary function works using characters that cannot be normally converted like 𰻞𰻞麺"
+    test('should handle problem statement: dictionary function with rare characters 𰻞𰻞麺', async () => {
       // Test the exact scenario from the problem statement
       const testWord = '𰻞𰻞麺';
       const testReading = 'めんめんめん';
@@ -216,8 +218,7 @@ describe('DictionaryManager Unicode Support', () => {
       const readingResults = await dm.searchWords('めん');
       expect(readingResults.length).toBeGreaterThan(0);
       
-      console.log('✓ Dictionary function successfully handles rare Unicode characters like 𰻞𰻞麺');
-      console.log('✓ All search methods (exact, partial, reading) work correctly');
+      // All assertions passed - dictionary successfully handles rare Unicode characters
     });
   });
 });
