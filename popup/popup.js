@@ -90,12 +90,10 @@ class WingdingsPopup {
     try {
       const settings = await chrome.storage.sync.get('wingdingsSettings');
       this.autoConvertCheckbox.checked = settings.wingdingsSettings?.autoConvert ?? false; // Default to false
-<<<<<<< Updated upstream
-      console.log('Popup: Settings loaded. autoConvert:', this.autoConvertCheckbox.checked);
-=======
       this.currentLang = settings.wingdingsSettings?.language ?? 'ja'; // Default to Japanese
       console.log('Popup: Settings loaded. autoConvert:', this.autoConvertCheckbox.checked, 'language:', this.currentLang);
->>>>>>> Stashed changes
+      console.log('Popup: Settings loaded. autoConvert:', this.autoConvertCheckbox.checked);
+
     } catch (e) {
       console.error('Popup: Error loading settings:', e);
     }
