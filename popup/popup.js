@@ -21,6 +21,10 @@ class WingdingsPopup {
     document.getElementById('aboutLink').addEventListener('click', () => chrome.tabs.create({ url: chrome.runtime.getURL('assets/about.html') }));
     document.getElementById('langBtn').addEventListener('click', () => this.toggleLanguage());
 
+    // Copy button event listeners
+    document.getElementById('copyResultBtn').addEventListener('click', () => this.copyToClipboard('resultText', 'copyResultBtn'));
+    document.getElementById('copyReverseResultBtn').addEventListener('click', () => this.copyToClipboard('reverseResultText', 'copyReverseResultBtn'));
+
     const inputText = document.getElementById('inputText');
     const charCount = document.getElementById('charCount');
     inputText.addEventListener('input', () => {
@@ -40,6 +44,66 @@ class WingdingsPopup {
       const chr = match.charCodeAt(0) + 0x60;
       return String.fromCharCode(chr);
     });
+  }
+
+  async copyToClipboard(textElementId, buttonElementId) {
+    const textElement = document.getElementById(textElementId);
+    const buttonElement = document.getElementById(buttonElementId);
+    
+    if (!textElement || !textElement.textContent) {
+      console.warn('No text to copy');
+      return;
+    }
+
+    try {
+      // Use the modern Clipboard API
+      await navigator.clipboard.writeText(textElement.textContent);
+      
+      // Show visual feedback
+      buttonElement.textContent = '✓ Copied!';
+      buttonElement.classList.add('copied');
+      
+      // Reset after 2 seconds
+      setTimeout(() => {
+        buttonElement.textContent = '📋 Copy';
+        buttonElement.classList.remove('copied');
+      }, 2000);
+      
+      console.log('Text copied to clipboard successfully');
+    } catch (err) {
+      console.error('Failed to copy text:', err);
+      
+      // Fallback for older browsers
+      try {
+        const textArea = document.createElement('textarea');
+        textArea.value = textElement.textContent;
+        textArea.style.position = 'absolute';
+        textArea.style.left = '-9999px';
+        textArea.style.top = '-9999px';
+        textArea.style.opacity = '0';
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        
+        // Show visual feedback
+        buttonElement.textContent = '✓ Copied!';
+        buttonElement.classList.add('copied');
+        
+        setTimeout(() => {
+          buttonElement.textContent = '📋 Copy';
+          buttonElement.classList.remove('copied');
+        }, 2000);
+        
+        console.log('Text copied using fallback method');
+      } catch (fallbackErr) {
+        console.error('Fallback copy also failed:', fallbackErr);
+        buttonElement.textContent = '✗ Failed';
+        setTimeout(() => {
+          buttonElement.textContent = '📋 Copy';
+        }, 2000);
+      }
+    }
   }
 
   async loadWingdingsMap() {
