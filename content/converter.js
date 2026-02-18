@@ -1,6 +1,6 @@
 const kuromoji = require('kuromoji');
 const wingdingsMapData = require('../data/wingdings-map.json');
-const { convertToRomaji: sharedConvertToRomaji } = require('../shared/romaji-converter.js');
+const { convertToRomaji: sharedConvertToRomaji, hiraganaToKatakana } = require('../shared/romaji-converter.js');
 
 // Constants
 const POS_SYMBOL = '記号'; // Part-of-speech marker for symbols/unknown characters
@@ -40,8 +40,8 @@ class TextConverter {
         // Store user dictionary as a Map for O(1) lookup during conversion
         this.userDictionary.clear();
         Object.entries(response.dictionary).forEach(([kanji, data]) => {
-          // Store reading in katakana for consistent processing
-          const readingInKatakana = data.reading.replace(/[ぁ-ゔ]/g, s => String.fromCharCode(s.charCodeAt(0) + 0x60));
+          // Store reading in katakana for consistent processing using shared function
+          const readingInKatakana = hiraganaToKatakana(data.reading);
           console.log('Converter: Adding to dictionary - Key:', kanji, 'Length:', kanji.length, 'Chars:', Array.from(kanji).length, 'Value:', readingInKatakana);
           this.userDictionary.set(kanji, readingInKatakana);
         });
@@ -216,8 +216,8 @@ class TextConverter {
   }
 
   convertToRomaji(text) {
-      // Convert hiragana to katakana for consistent processing
-      const katakanaText = text.replace(/[ぁ-ゔ]/g, s => String.fromCharCode(s.charCodeAt(0) + 0x60));
+      // Convert hiragana to katakana for consistent processing using shared function
+      const katakanaText = hiraganaToKatakana(text);
       // Use shared, optimized conversion function
       return sharedConvertToRomaji(katakanaText);
   }

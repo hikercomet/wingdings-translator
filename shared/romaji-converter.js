@@ -84,5 +84,10 @@ function convertToRomaji(text) {
   return finalResult;
 }
 
-// Export both the function and the map for reuse
-module.exports = { convertToRomaji, KANA_MAP };
+// Shared utility to convert hiragana to katakana
+function hiraganaToKatakana(text) {
+  return text.replace(/[ぁ-ゔ]/g, s => String.fromCharCode(s.charCodeAt(0) + 0x60));
+}
+
+// Export the functions and the map for reuse
+module.exports = { convertToRomaji, hiraganaToKatakana, KANA_MAP };
