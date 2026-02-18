@@ -251,6 +251,13 @@ textarea:focus {
   letter-spacing: -0.01em;
 }
 
+.result-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 #resultText,
 #reverseResultText {
   background: var(--bg-surface);
@@ -265,6 +272,10 @@ textarea:focus {
   word-break: break-all;
   white-space: pre-wrap;
   box-shadow: var(--shadow-sm) inset;
+  user-select: all;
+  -webkit-user-select: all;
+  -moz-user-select: all;
+  -ms-user-select: all;
 }
 
 #resultText {
@@ -274,20 +285,34 @@ textarea:focus {
 
 .copy-btn {
   width: 100%;
-  margin-top: 10px;
-  background: var(--accent-primary);
-  /* Changed from accent-color */
-  border: none;
-  color: white;
   padding: 10px;
-  border-radius: 6px;
+  background: var(--accent-primary);
+  border: 1px solid var(--border);
+  color: white;
+  border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: all 0.3s ease;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 }
 
 .copy-btn:hover {
   background: var(--accent-secondary);
-  /* Changed from accent-color-dark */
+  border-color: var(--border-hover);
+  transform: translateY(-1px);
+}
+
+.copy-btn:active {
+  transform: translateY(0);
+}
+
+.copy-btn.copied {
+  background: #22c55e;
+  border-color: #22c55e;
 }
 
 .section h3,
