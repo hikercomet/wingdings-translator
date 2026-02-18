@@ -77,8 +77,10 @@ class WingdingsPopup {
       try {
         const textArea = document.createElement('textarea');
         textArea.value = textElement.textContent;
-        textArea.style.position = 'fixed';
-        textArea.style.left = '-999999px';
+        textArea.style.position = 'absolute';
+        textArea.style.left = '-9999px';
+        textArea.style.top = '-9999px';
+        textArea.style.opacity = '0';
         document.body.appendChild(textArea);
         textArea.select();
         document.execCommand('copy');
