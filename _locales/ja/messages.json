@@ -48,7 +48,7 @@
     "description": "Label for the convert page button."
   },
   "popupRevertPageButton": {
-    "message": "↩️ 元に戻す",
+    "message": "元に戻す",
     "description": "Label for the revert page button."
   },
   "popupDictionaryTitle": {
