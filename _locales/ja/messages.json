@@ -4,7 +4,7 @@
     "description": "The name of the extension."
   },
   "extDescription": {
-    "message": "日本語・英語をWingdingsフォントに変換。ガスターがChromeを使う体験を再現。",
+    "message": "日本語・英語をWingdingsフォントに変換",
     "description": "The description of the extension."
   },
   "popupTitle": {
