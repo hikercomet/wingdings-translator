@@ -4,13 +4,7 @@ const CopyPlugin = require('copy-webpack-plugin');
 module.exports = {
   mode: 'production',
   entry: {
-    // Bundle all content scripts together
-    'content/content-script': [
-      './node_modules/kuromoji/build/kuromoji.js',
-      './content/converter.js',
-      './content/dom-manipulator.js',
-      './content/content-script.js'
-    ],
+    'content/content-script': './content/content-script.js',
     'background/service-worker': './background/service-worker.js',
     'popup/popup': './popup/popup.js',
   },

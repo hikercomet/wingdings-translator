@@ -1,30 +1,37 @@
-const { TextConverter } = require('./converter.js');
-const { DOMManipulator } = require('./dom-manipulator.js');
-
 class MainContentScript {
   constructor() {
     this.converter = null;
     this.domManipulator = null;
+    this.TextConverter = null;
+    this.DOMManipulator = null;
     this.init();
   }
 
   async init() {
     try {
-      this.converter = new TextConverter();
-      this.domManipulator = new DOMManipulator();
       this.setupListeners();
-      // Initialize converter if needed for other messages, but don't auto-convert here
-      // The auto-conversion logic is now handled by the background script based on user settings.
-      // if (!this.converter.tokenizer) {
-      //   await this.converter.init(chrome.runtime.getURL('data/dict/'));
-      // }
-      // this.domManipulator.convertPage(this.converter); // Removed auto-conversion
     } catch (e) {
       console.error('Wingdings-Converter: Content script initialization failed.', e);
     }
   }
 
+  ensureRuntimeModulesLoaded() {
+    if (!this.TextConverter || !this.DOMManipulator) {
+      const { TextConverter } = require('./converter.js');
+      const { DOMManipulator } = require('./dom-manipulator.js');
+      this.TextConverter = TextConverter;
+      this.DOMManipulator = DOMManipulator;
+    }
+  }
+
   async ensureConverterInitialized() {
+    this.ensureRuntimeModulesLoaded();
+
+    if (!this.converter) {
+      this.converter = new this.TextConverter();
+      this.domManipulator = new this.DOMManipulator();
+    }
+
     if (!this.converter.tokenizer) {
       await this.converter.init(chrome.runtime.getURL('data/dict/'));
     }
@@ -40,25 +47,25 @@ class MainContentScript {
   async handleMessage(message, sender) {
     switch (message.type) {
       case 'DICTIONARY_UPDATED':
-        // Reload user dictionary when notified of updates
-        console.log('ContentScript: Received DICTIONARY_UPDATED notification');
         if (this.converter) {
           await this.converter.loadUserDictionary();
-          console.log('ContentScript: User dictionary reloaded');
         }
         return { success: true };
-      case 'PAGE_LOADED': // This message is now used for conditional auto-conversion
+      case 'PAGE_LOADED':
       case 'CONVERT_PAGE_REQUEST':
         await this.ensureConverterInitialized();
-        await this.domManipulator.convertPage(this.converter); // Added await
+        await this.domManipulator.convertPage(this.converter);
         return { success: true };
       case 'REVERT_PAGE_REQUEST':
-        this.domManipulator.revertPage();
+        if (this.domManipulator) {
+          this.domManipulator.revertPage();
+        }
         return { success: true };
-      case 'CONVERT_TEXT':
+      case 'CONVERT_TEXT': {
         await this.ensureConverterInitialized();
         const convertedText = await this.converter.convert(message.text);
         return { success: true, convertedText };
+      }
       case 'CONVERT_FROM_WINGDINGS': {
         await this.ensureConverterInitialized();
         const originalText = this.converter.convertFromWingdings(message.text);
@@ -67,12 +74,11 @@ class MainContentScript {
       case 'SHOW_WORD_REGISTRATION': {
         const kanji = message.selectedText;
         const reading = prompt(`Please enter the reading (in Hiragana) for "${kanji}":`);
-        
+
         if (reading) {
           try {
             await this.ensureConverterInitialized();
             const romaji = this.converter.convertToRomaji(reading);
-            console.log('[Wingdings-Converter] Sending ADD_TO_DICTIONARY with:', { kanji, reading, romaji });
             const response = await chrome.runtime.sendMessage({
               type: 'ADD_TO_DICTIONARY',
               kanji,
@@ -91,7 +97,7 @@ class MainContentScript {
             alert('An error occurred while adding the word.');
           }
         }
-        return { success: true }; // Acknowledge message was handled
+        return { success: true };
       }
     }
   }
