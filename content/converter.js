@@ -4,6 +4,7 @@ const { convertToRomaji: sharedConvertToRomaji } = require('../shared/romaji-con
 
 // Constants
 const POS_SYMBOL = '記号'; // Part-of-speech marker for symbols/unknown characters
+const JAPANESE_TEXT_REGEX = /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/;
 
 class TextConverter {
   constructor() {
@@ -33,20 +34,15 @@ class TextConverter {
   async loadUserDictionary() {
     // Load user dictionary for custom word readings
     try {
-      console.log('Converter: Requesting user dictionary from background...');
       const response = await chrome.runtime.sendMessage({ type: 'GET_USER_DICTIONARY' });
       if (response && response.success && response.dictionary) {
-        console.log('Converter: User dictionary received from background:', response.dictionary);
         // Store user dictionary as a Map for O(1) lookup during conversion
         this.userDictionary.clear();
         Object.entries(response.dictionary).forEach(([kanji, data]) => {
           // Store reading in katakana for consistent processing
           const readingInKatakana = data.reading.replace(/[ぁ-ゔ]/g, s => String.fromCharCode(s.charCodeAt(0) + 0x60));
-          console.log('Converter: Adding to dictionary - Key:', kanji, 'Length:', kanji.length, 'Chars:', Array.from(kanji).length, 'Value:', readingInKatakana);
           this.userDictionary.set(kanji, readingInKatakana);
         });
-        console.log('Converter: User dictionary loaded with', this.userDictionary.size, 'entries.');
-        console.log('Converter: Dictionary contents:', Array.from(this.userDictionary.entries()));
       }
     } catch (e) {
       console.error('Converter: Failed to load user dictionary:', e);
@@ -66,7 +62,6 @@ class TextConverter {
           reject(err);
         } else {
           this.tokenizer = tokenizer;
-          console.log('Converter: Kuromoji initialized successfully.');
           resolve();
         }
       });
@@ -83,6 +78,10 @@ class TextConverter {
       console.error('Converter: Tokenizer not initialized before convert call.');
       return text;
     }
+    if (!JAPANESE_TEXT_REGEX.test(text)) {
+      return this.convertTextToWingdings(text);
+    }
+
     // Reload user dictionary before conversion to ensure latest data
     await this.loadUserDictionary();
     const tokens = this.tokenizer.tokenize(text);
@@ -115,7 +114,6 @@ class TextConverter {
           currentUntokenized += textChars[i];
         } else if (currentUntokenized) {
           // Add accumulated untokenized characters as pseudo-token
-          console.log('Converter: Adding untokenized text as pseudo-token:', currentUntokenized);
           tokens.push({
             surface_form: currentUntokenized,
             reading: null,
@@ -127,7 +125,6 @@ class TextConverter {
       }
       // Add remaining untokenized characters
       if (currentUntokenized) {
-        console.log('Converter: Adding final untokenized text as pseudo-token:', currentUntokenized);
         tokens.push({
           surface_form: currentUntokenized,
           reading: null,
@@ -160,7 +157,7 @@ class TextConverter {
           reading = token.reading || surfaceForm;
         }
         
-        if (!/[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/.test(reading)) {
+        if (!JAPANESE_TEXT_REGEX.test(reading)) {
             return reading;
         }
         return this.convertToRomaji(reading);
