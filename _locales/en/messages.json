@@ -49,7 +49,7 @@
     "description": "Label for the convert page button."
   },
   "popupRevertPageButton": {
-    "message": "↩️ Revert",
+    "message": "Revert",
     "description": "Label for the revert page button."
   },
   "popupDictionaryTitle": {
